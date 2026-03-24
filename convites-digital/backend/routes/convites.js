@@ -92,11 +92,12 @@ router.get("/:id", validarId, async (req, res, next) => {
 
 // POST /api/convites
 router.post("/", authenticateToken, validarEvento, async (req, res, next) => {
-  const { titulo, descricao, data, local } = req.body;
+  const { titulo, descricao, data, local, musica_url, video_url, fotos } = req.body;
   try {
+    const fotosArray = Array.isArray(fotos) ? fotos.filter(f => f?.trim()) : [];
     const result = await pool.query(
-      "INSERT INTO eventos (usuario_id, nome_evento, data_evento, local_evento, mensagem, criado_em) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
-      [req.user.id, titulo.trim(), data, local.trim(), descricao?.trim() || ""]
+      "INSERT INTO eventos (usuario_id, nome_evento, data_evento, local_evento, mensagem, musica_url, video_url, fotos, criado_em) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW()) RETURNING *",
+      [req.user.id, titulo.trim(), data, local.trim(), descricao?.trim() || "", musica_url?.trim() || null, video_url?.trim() || null, fotosArray]
     );
     console.log("✅ Evento criado:", result.rows[0].id);
     res.status(201).json(result.rows[0]);
@@ -107,16 +108,17 @@ router.post("/", authenticateToken, validarEvento, async (req, res, next) => {
 
 // PUT /api/convites/:id
 router.put("/:id", authenticateToken, validarId, validarEvento, async (req, res, next) => {
-  const { titulo, descricao, data, local } = req.body;
+  const { titulo, descricao, data, local, musica_url, video_url, fotos } = req.body;
   const { id } = req.params;
   try {
     const check = await pool.query("SELECT usuario_id FROM eventos WHERE id = $1", [id]);
     if (check.rows.length === 0) return res.status(404).json({ error: "Convite não encontrado" });
     if (check.rows[0].usuario_id !== req.user.id) return res.status(403).json({ error: "Sem permissão" });
 
+    const fotosArray = Array.isArray(fotos) ? fotos.filter(f => f?.trim()) : [];
     const result = await pool.query(
-      "UPDATE eventos SET nome_evento=$1, mensagem=$2, data_evento=$3, local_evento=$4 WHERE id=$5 RETURNING *",
-      [titulo.trim(), descricao?.trim() || "", data, local.trim(), id]
+      "UPDATE eventos SET nome_evento=$1, mensagem=$2, data_evento=$3, local_evento=$4, musica_url=$5, video_url=$6, fotos=$7 WHERE id=$8 RETURNING *",
+      [titulo.trim(), descricao?.trim() || "", data, local.trim(), musica_url?.trim() || null, video_url?.trim() || null, fotosArray, id]
     );
     res.json(result.rows[0]);
   } catch (err) {

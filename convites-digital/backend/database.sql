@@ -32,6 +32,9 @@ CREATE TABLE eventos (
   mensagem TEXT,
   data_evento DATE NOT NULL,
   local_evento VARCHAR(255) NOT NULL,
+  musica_url VARCHAR(500),
+  video_url VARCHAR(500),
+  fotos TEXT[],
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

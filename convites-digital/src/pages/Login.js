@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // eslint-disable-line no-unused-vars
 import { authAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";

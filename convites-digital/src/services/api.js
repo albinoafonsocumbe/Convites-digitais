@@ -1,4 +1,10 @@
-const API_URL = "http://localhost:5000/api";
+// Em producao usa o URL do Render, em dev usa localhost ou o IP da maquina
+const API_HOST = process.env.REACT_APP_API_URL
+  || (window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : `http://${window.location.hostname}:5000`);
+
+const API_URL = `${API_HOST}/api`;
 
 // Função auxiliar para tratar erros
 const handleResponse = async (response) => {
@@ -12,7 +18,7 @@ const handleResponse = async (response) => {
 // Função para testar conexão com backend
 export const testarConexao = async () => {
   try {
-    const response = await fetch("http://localhost:5000/", {
+    const response = await fetch(`${API_HOST}/`, {
       method: "GET",
       headers: { "Content-Type": "application/json" }
     });
@@ -192,6 +198,22 @@ export const emailAPI = {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ emails }),
+    });
+    return handleResponse(response);
+  },
+};
+
+// Upload de ficheiros (fotos, videos, audio) via backend -> Cloudinary
+export const uploadAPI = {
+  upload: async (file, tipo) => {
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("tipo", tipo); // image | video | audio
+    const response = await fetch(`${API_URL}/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
     });
     return handleResponse(response);
   },

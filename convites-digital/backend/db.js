@@ -1,18 +1,23 @@
 const { Pool } = require("pg");
 
-const pool = new Pool({
-  user: process.env.DB_USER || "postgres",
-  host: process.env.DB_HOST || "localhost",
-  database: process.env.DB_NAME || "convitesdb",
-  password: process.env.DB_PASS || "0000",
-  port: parseInt(process.env.DB_PORT) || 5432,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }, // necessario no Render/Neon
+    })
+  : new Pool({
+      user: process.env.DB_USER || "postgres",
+      host: process.env.DB_HOST || "localhost",
+      database: process.env.DB_NAME || "convitesdb",
+      password: process.env.DB_PASS || "0000",
+      port: parseInt(process.env.DB_PORT) || 5432,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
 
 pool.on("error", (err) => {
-  console.error("❌ Erro inesperado no pool PostgreSQL:", err);
+  console.error("Erro inesperado no pool PostgreSQL:", err);
 });
 
 module.exports = pool;

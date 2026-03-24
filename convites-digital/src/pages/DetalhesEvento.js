@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import { convitesAPI, confirmacoesAPI, emailAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";
@@ -27,6 +28,7 @@ function DetalhesEvento() {
 
   useEffect(() => {
     carregarDados();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const carregarDados = async () => {
@@ -161,6 +163,19 @@ function DetalhesEvento() {
           <small style={{ color: "#666", marginTop: "8px", display: "block" }}>
             Compartilha este link para que os convidados possam confirmar presença
           </small>
+          {/* QR Code */}
+          <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+            <p style={{ color: "#667eea", fontWeight: 600, fontSize: "14px", margin: 0 }}>QR Code do Convite</p>
+            <div style={{ padding: "12px", background: "white", borderRadius: "10px", border: "2px solid #e8ecff", display: "inline-block" }}>
+              <QRCodeSVG
+                value={`${window.location.origin}/convite/${id}`}
+                size={160}
+                fgColor="#667eea"
+                level="M"
+              />
+            </div>
+            <small style={{ color: "#999" }}>Digitaliza para abrir o convite no telemóvel</small>
+          </div>
         </div>
       </div>
 
