@@ -18,11 +18,9 @@ const secaoTitulo = {
   marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px"
 };
 
-// Mini componente de upload de foto individual
 function SlotFoto({ url, onUpload, onRemove, index }) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef();
-
   const handleFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -30,43 +28,31 @@ function SlotFoto({ url, onUpload, onRemove, index }) {
     try {
       const uploadedUrl = await uploadFicheiro(file, "image");
       onUpload(index, uploadedUrl);
-    } catch (err) {
-      alert("Erro no upload da foto: " + err.message);
-    }
+    } catch (err) { alert("Erro no upload da foto: " + err.message); }
     setUploading(false);
   };
-
-  if (url) {
-    return (
-      <div style={{ position: "relative", aspectRatio: "1", borderRadius: "10px", overflow: "hidden" }}>
-        <img src={url} alt={`Foto ${index + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <button type="button" onClick={() => onRemove(index)} style={{
-          position: "absolute", top: "6px", right: "6px",
-          background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%",
-          color: "white", width: "26px", height: "26px", cursor: "pointer", fontSize: "14px",
-          display: "flex", alignItems: "center", justifyContent: "center"
-        }}>x</button>
-      </div>
-    );
-  }
-
+  if (url) return (
+    <div style={{ position: "relative", aspectRatio: "1", borderRadius: "10px", overflow: "hidden" }}>
+      <img src={url} alt={"Foto " + (index + 1)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <button type="button" onClick={() => onRemove(index)} style={{
+        position: "absolute", top: "6px", right: "6px", background: "rgba(0,0,0,0.6)",
+        border: "none", borderRadius: "50%", color: "white", width: "26px", height: "26px",
+        cursor: "pointer", fontSize: "14px", display: "flex", alignItems: "center", justifyContent: "center"
+      }}>x</button>
+    </div>
+  );
   return (
     <label style={{
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       aspectRatio: "1", borderRadius: "10px", border: "2px dashed #c5cae9",
-      background: "#f8f9ff", cursor: uploading ? "wait" : "pointer", transition: "all 0.2s"
+      background: "#f8f9ff", cursor: uploading ? "wait" : "pointer"
     }}
       onMouseEnter={e => { if (!uploading) e.currentTarget.style.borderColor = "#667eea"; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = "#c5cae9"; }}
     >
       <input ref={inputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
-      {uploading
-        ? <span style={{ fontSize: "22px" }}>⏳</span>
-        : <>
-            <span style={{ fontSize: "28px", marginBottom: "4px" }}>+</span>
-            <span style={{ fontSize: "11px", color: "#999" }}>Foto</span>
-          </>
-      }
+      {uploading ? <span style={{ fontSize: "22px" }}>...</span>
+        : <><span style={{ fontSize: "28px", marginBottom: "4px" }}>+</span><span style={{ fontSize: "11px", color: "#999" }}>Foto</span></>}
     </label>
   );
 }
@@ -80,28 +66,26 @@ function CriarConvite() {
     titulo: "", descricao: "", data: "", local: "",
     musica_url: "", video_url: "", fotos: []
   });
+  const [convidados, setConvidados] = useState([{ nome: "", relacao: "" }]);
   const [uploadingMusica, setUploadingMusica] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [loading, setLoading] = useState(false);
+  const [eventoId, setEventoId] = useState(null);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Upload de música
   const handleMusica = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setUploadingMusica(true);
     try {
-      const url = await uploadFicheiro(file, "video"); // audio usa endpoint video no Cloudinary
+      const url = await uploadFicheiro(file, "video");
       setFormData(f => ({ ...f, musica_url: url }));
-    } catch (err) {
-      alert("Erro no upload da música: " + err.message);
-    }
+    } catch (err) { alert("Erro no upload da musica: " + err.message); }
     setUploadingMusica(false);
   };
 
-  // Upload de vídeo
   const handleVideo = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -109,25 +93,38 @@ function CriarConvite() {
     try {
       const url = await uploadFicheiro(file, "video");
       setFormData(f => ({ ...f, video_url: url }));
-    } catch (err) {
-      alert("Erro no upload do vídeo: " + err.message);
-    }
+    } catch (err) { alert("Erro no upload do video: " + err.message); }
     setUploadingVideo(false);
   };
 
-  // Fotos
   const handleFotoUpload = (index, url) => {
     const novas = [...formData.fotos];
     novas[index] = url;
     setFormData(f => ({ ...f, fotos: novas }));
   };
 
-  const removerFoto = (index) => {
-    setFormData(f => ({ ...f, fotos: f.fotos.filter((_, i) => i !== index) }));
+  const removerFoto = (index) => setFormData(f => ({ ...f, fotos: f.fotos.filter((_, i) => i !== index) }));
+  const adicionarSlotFoto = () => setFormData(f => ({ ...f, fotos: [...f.fotos, ""] }));
+
+  const adicionarConvidado = () => setConvidados(c => [...c, { nome: "", relacao: "" }]);
+  const removerConvidado = (i) => setConvidados(c => c.filter((_, idx) => idx !== i));
+  const updateConvidado = (i, campo, valor) => {
+    const novos = [...convidados];
+    novos[i][campo] = valor;
+    setConvidados(novos);
   };
 
-  const adicionarSlotFoto = () => {
-    setFormData(f => ({ ...f, fotos: [...f.fotos, ""] }));
+  const gerarLink = (id, convidado) => {
+    const base = window.location.origin + "/convite/" + id;
+    const params = new URLSearchParams();
+    if (convidado.nome) params.set("nome", convidado.nome);
+    if (convidado.relacao) params.set("rel", convidado.relacao);
+    return base + "?" + params.toString();
+  };
+
+  const copiarLink = (link) => {
+    navigator.clipboard.writeText(link);
+    alert("Link copiado!");
   };
 
   const handleSubmit = async (e) => {
@@ -135,149 +132,208 @@ function CriarConvite() {
     setLoading(true);
     try {
       const novoEvento = await convitesAPI.criar(formData);
+      setEventoId(novoEvento.id);
       setMensagem("Convite criado com sucesso!");
-      setTimeout(() => navigate(`/evento/${novoEvento.id}`), 1500);
     } catch (error) {
       setMensagem("Erro ao criar convite: " + error.message);
       setLoading(false);
     }
   };
 
+  const convidadosValidos = convidados.filter(c => c.nome.trim());
+
   return (
     <div className="page-container">
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
           <h1 className="page-title" style={{ marginBottom: "10px" }}>Criar Novo Convite</h1>
-          <p style={{ color: "white", fontSize: "18px", opacity: 0.9 }}>
-            Personaliza o teu evento com música, fotos e vídeo
-          </p>
+          <p style={{ color: "white", fontSize: "18px", opacity: 0.9 }}>Personaliza o teu evento com musica, fotos e video</p>
         </div>
 
         <div className="form-container" style={{ background: "white", borderRadius: "20px", padding: "50px", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
-          <form onSubmit={handleSubmit}>
-
-            {/* Informações básicas */}
-            <div style={secaoStyle}>
-              <p style={secaoTitulo}>Informacoes do Evento</p>
-              <div className="form-group">
-                <label>Titulo do Evento *</label>
-                <input type="text" name="titulo" value={formData.titulo} onChange={handleChange}
-                  required placeholder="Ex: Aniversario de 30 anos, Casamento..." />
-              </div>
-              <div className="form-group">
-                <label>Descricao / Mensagem</label>
-                <textarea name="descricao" value={formData.descricao} onChange={handleChange}
-                  placeholder="Escreve uma mensagem especial para os teus convidados..." rows="4" />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+          {!eventoId ? (
+            <form onSubmit={handleSubmit}>
+              <div style={secaoStyle}>
+                <p style={secaoTitulo}>Informacoes do Evento</p>
                 <div className="form-group">
-                  <label>Data do Evento *</label>
-                  <input type="date" name="data" value={formData.data} onChange={handleChange}
-                    required min={new Date().toISOString().split("T")[0]} />
+                  <label>Titulo do Evento *</label>
+                  <input type="text" name="titulo" value={formData.titulo} onChange={handleChange}
+                    required placeholder="Ex: Casamento de Ana e Joao, Aniversario de 30 anos..." />
                 </div>
                 <div className="form-group">
-                  <label>Local *</label>
-                  <input type="text" name="local" value={formData.local} onChange={handleChange}
-                    required placeholder="Ex: Salao de Festas Central" />
+                  <label>Descricao / Mensagem</label>
+                  <textarea name="descricao" value={formData.descricao} onChange={handleChange}
+                    placeholder="Escreve uma mensagem especial para os teus convidados..." rows="4" />
                 </div>
-              </div>
-            </div>
-
-            {/* Música */}
-            <div style={secaoStyle}>
-              <p style={secaoTitulo}>Musica de Fundo</p>
-              <input ref={musicaInputRef} type="file" accept="audio/*" style={{ display: "none" }} onChange={handleMusica} />
-              {formData.musica_url ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f0f4ff", borderRadius: "10px", padding: "14px 16px" }}>
-                  <span style={{ fontSize: "24px" }}>🎵</span>
-                  <div style={{ flex: 1 }}>
-                    <audio controls src={formData.musica_url} style={{ width: "100%", height: "36px" }} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                  <div className="form-group">
+                    <label>Data do Evento *</label>
+                    <input type="date" name="data" value={formData.data} onChange={handleChange}
+                      required min={new Date().toISOString().split("T")[0]} />
                   </div>
-                  <button type="button" onClick={() => setFormData(f => ({ ...f, musica_url: "" }))}
-                    style={{ background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px",
-                      color: "#f5576c", padding: "6px 12px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>
-                    Remover
-                  </button>
+                  <div className="form-group">
+                    <label>Local *</label>
+                    <input type="text" name="local" value={formData.local} onChange={handleChange}
+                      required placeholder="Ex: Salao de Festas Central" />
+                  </div>
                 </div>
-              ) : (
-                <button type="button" onClick={() => musicaInputRef.current.click()}
-                  disabled={uploadingMusica}
-                  style={{ width: "100%", padding: "20px", border: "2px dashed #c5cae9", borderRadius: "10px",
-                    background: "#f8f9ff", cursor: uploadingMusica ? "wait" : "pointer",
-                    color: "#667eea", fontSize: "15px", fontWeight: 600, display: "flex",
-                    alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                  {uploadingMusica ? "A fazer upload..." : "Escolher ficheiro de musica (MP3, WAV...)"}
-                </button>
-              )}
-              <small style={{ color: "#999", marginTop: "8px", display: "block" }}>
-                Ou cola um link direto: <input type="url" name="musica_url" value={formData.musica_url}
-                  onChange={handleChange} placeholder="https://..." style={{ border: "none", borderBottom: "1px solid #ddd",
-                    outline: "none", fontSize: "13px", color: "#555", width: "60%", padding: "2px 4px" }} />
-              </small>
-            </div>
+              </div>
 
-            {/* Vídeo */}
-            <div style={secaoStyle}>
-              <p style={secaoTitulo}>Video / Reels</p>
-              <input ref={videoInputRef} type="file" accept="video/*" style={{ display: "none" }} onChange={handleVideo} />
-              {formData.video_url ? (
-                <div>
-                  <video controls src={formData.video_url} style={{ width: "100%", borderRadius: "10px", maxHeight: "240px" }} />
-                  <button type="button" onClick={() => setFormData(f => ({ ...f, video_url: "" }))}
-                    style={{ marginTop: "8px", background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px",
-                      color: "#f5576c", padding: "6px 14px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>
-                    Remover video
+              <div style={secaoStyle}>
+                <p style={secaoTitulo}>Musica de Fundo</p>
+                <input ref={musicaInputRef} type="file" accept="audio/*" style={{ display: "none" }} onChange={handleMusica} />
+                {formData.musica_url ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f0f4ff", borderRadius: "10px", padding: "14px 16px" }}>
+                    <span style={{ fontSize: "24px" }}>🎵</span>
+                    <audio controls src={formData.musica_url} style={{ flex: 1, height: "36px" }} />
+                    <button type="button" onClick={() => setFormData(f => ({ ...f, musica_url: "" }))}
+                      style={{ background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px", color: "#f5576c", padding: "6px 12px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>
+                      Remover
+                    </button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => musicaInputRef.current.click()} disabled={uploadingMusica}
+                    style={{ width: "100%", padding: "20px", border: "2px dashed #c5cae9", borderRadius: "10px", background: "#f8f9ff", cursor: uploadingMusica ? "wait" : "pointer", color: "#667eea", fontSize: "15px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                    {uploadingMusica ? "A fazer upload..." : "Escolher ficheiro de musica (MP3, WAV...)"}
                   </button>
-                </div>
-              ) : (
-                <button type="button" onClick={() => videoInputRef.current.click()}
-                  disabled={uploadingVideo}
-                  style={{ width: "100%", padding: "20px", border: "2px dashed #c5cae9", borderRadius: "10px",
-                    background: "#f8f9ff", cursor: uploadingVideo ? "wait" : "pointer",
-                    color: "#667eea", fontSize: "15px", fontWeight: 600, display: "flex",
-                    alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                  {uploadingVideo ? "A fazer upload..." : "Escolher video (MP4, MOV...)"}
-                </button>
-              )}
-              <small style={{ color: "#999", marginTop: "8px", display: "block" }}>
-                Ou cola link do YouTube: <input type="url" name="video_url" value={formData.video_url}
-                  onChange={handleChange} placeholder="https://youtube.com/..." style={{ border: "none", borderBottom: "1px solid #ddd",
-                    outline: "none", fontSize: "13px", color: "#555", width: "55%", padding: "2px 4px" }} />
-              </small>
-            </div>
+                )}
+                <small style={{ color: "#999", marginTop: "8px", display: "block" }}>
+                  Ou cola um link direto: <input type="url" name="musica_url" value={formData.musica_url}
+                    onChange={handleChange} placeholder="https://..." style={{ border: "none", borderBottom: "1px solid #ddd", outline: "none", fontSize: "13px", color: "#555", width: "60%", padding: "2px 4px" }} />
+                </small>
+              </div>
 
-            {/* Fotos */}
-            <div style={secaoStyle}>
-              <p style={secaoTitulo}>Galeria de Fotos</p>
-              <small style={{ color: "#999", display: "block", marginBottom: "16px" }}>
-                Clica nos quadrados para adicionar fotos do teu dispositivo
-              </small>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "10px" }}>
-                {formData.fotos.map((foto, i) => (
-                  <SlotFoto key={i} url={foto} index={i} onUpload={handleFotoUpload} onRemove={removerFoto} />
+              <div style={secaoStyle}>
+                <p style={secaoTitulo}>Video / Reels</p>
+                <input ref={videoInputRef} type="file" accept="video/*" style={{ display: "none" }} onChange={handleVideo} />
+                {formData.video_url ? (
+                  <div>
+                    <video controls src={formData.video_url} style={{ width: "100%", borderRadius: "10px", maxHeight: "240px" }} />
+                    <button type="button" onClick={() => setFormData(f => ({ ...f, video_url: "" }))}
+                      style={{ marginTop: "8px", background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px", color: "#f5576c", padding: "6px 14px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}>
+                      Remover video
+                    </button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => videoInputRef.current.click()} disabled={uploadingVideo}
+                    style={{ width: "100%", padding: "20px", border: "2px dashed #c5cae9", borderRadius: "10px", background: "#f8f9ff", cursor: uploadingVideo ? "wait" : "pointer", color: "#667eea", fontSize: "15px", fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                    {uploadingVideo ? "A fazer upload..." : "Escolher video (MP4, MOV...)"}
+                  </button>
+                )}
+                <small style={{ color: "#999", marginTop: "8px", display: "block" }}>
+                  Ou cola link do YouTube: <input type="url" name="video_url" value={formData.video_url}
+                    onChange={handleChange} placeholder="https://youtube.com/..." style={{ border: "none", borderBottom: "1px solid #ddd", outline: "none", fontSize: "13px", color: "#555", width: "55%", padding: "2px 4px" }} />
+                </small>
+              </div>
+
+              <div style={secaoStyle}>
+                <p style={secaoTitulo}>Galeria de Fotos</p>
+                <small style={{ color: "#999", display: "block", marginBottom: "16px" }}>Clica nos quadrados para adicionar fotos</small>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "10px" }}>
+                  {formData.fotos.map((foto, i) => (
+                    <SlotFoto key={i} url={foto} index={i} onUpload={handleFotoUpload} onRemove={removerFoto} />
+                  ))}
+                  <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", aspectRatio: "1", borderRadius: "10px", border: "2px dashed #c5cae9", background: "#f8f9ff", cursor: "pointer" }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = "#667eea"}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = "#c5cae9"}
+                    onClick={adicionarSlotFoto}>
+                    <span style={{ fontSize: "28px", color: "#667eea" }}>+</span>
+                    <span style={{ fontSize: "11px", color: "#999" }}>Adicionar</span>
+                  </label>
+                </div>
+              </div>
+
+              <div style={secaoStyle}>
+                <p style={secaoTitulo}>Lista de Convidados</p>
+                <small style={{ color: "#999", display: "block", marginBottom: "16px" }}>
+                  Adiciona os convidados para gerar links personalizados para cada um
+                </small>
+                {convidados.map((c, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "10px", marginBottom: "10px", alignItems: "center" }}>
+                    <input type="text" placeholder="Nome do convidado" value={c.nome}
+                      onChange={e => updateConvidado(i, "nome", e.target.value)}
+                      style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid #e0e0e0", fontSize: "14px", outline: "none" }} />
+                    <input type="text" placeholder="Relacao (ex: Primo, Amigo...)" value={c.relacao}
+                      onChange={e => updateConvidado(i, "relacao", e.target.value)}
+                      style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid #e0e0e0", fontSize: "14px", outline: "none" }} />
+                    <button type="button" onClick={() => removerConvidado(i)}
+                      style={{ background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px", color: "#f5576c", padding: "10px 14px", cursor: "pointer", fontSize: "16px" }}>
+                      x
+                    </button>
+                  </div>
                 ))}
-                <label style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                  aspectRatio: "1", borderRadius: "10px", border: "2px dashed #c5cae9",
-                  background: "#f8f9ff", cursor: "pointer"
-                }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = "#667eea"}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = "#c5cae9"}
-                  onClick={adicionarSlotFoto}
-                >
-                  <span style={{ fontSize: "28px", color: "#667eea" }}>+</span>
-                  <span style={{ fontSize: "11px", color: "#999" }}>Adicionar</span>
-                </label>
+                <button type="button" onClick={adicionarConvidado}
+                  style={{ marginTop: "8px", background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "10px 20px", cursor: "pointer", fontSize: "14px", fontWeight: 600 }}>
+                  + Adicionar convidado
+                </button>
+              </div>
+
+              <button type="submit" className="btn btn-primary" disabled={loading}
+                style={{ width: "100%", fontSize: "18px", padding: "18px", marginTop: "10px" }}>
+                {loading ? "A criar convite..." : "Criar Convite"}
+              </button>
+            </form>
+          ) : (
+            <div>
+              <div style={{ textAlign: "center", marginBottom: "32px" }}>
+                <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "linear-gradient(135deg,#43e97b,#38f9d7)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "32px" }}>
+                  ✓
+                </div>
+                <h2 style={{ color: "#333", fontSize: "22px", marginBottom: "8px" }}>Convite criado!</h2>
+                <p style={{ color: "#666" }}>Partilha os links personalizados com cada convidado</p>
+              </div>
+
+              <div style={{ background: "#f8f9ff", borderRadius: "12px", padding: "16px", marginBottom: "16px", border: "1px solid #e8ecff" }}>
+                <p style={{ fontSize: "13px", fontWeight: 700, color: "#667eea", marginBottom: "8px" }}>Link geral do convite</p>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input readOnly value={window.location.origin + "/convite/" + eventoId}
+                    style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1px solid #e0e0e0", fontSize: "13px", color: "#555", background: "white" }} />
+                  <button type="button" onClick={() => copiarLink(window.location.origin + "/convite/" + eventoId)}
+                    style={{ background: "#667eea", color: "white", border: "none", borderRadius: "8px", padding: "10px 16px", cursor: "pointer", fontWeight: 600, fontSize: "13px" }}>
+                    Copiar
+                  </button>
+                </div>
+              </div>
+
+              {convidadosValidos.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "14px", fontWeight: 700, color: "#333", marginBottom: "12px" }}>
+                    Links personalizados por convidado:
+                  </p>
+                  {convidadosValidos.map((c, i) => {
+                    const link = gerarLink(eventoId, c);
+                    return (
+                      <div key={i} style={{ background: "#f8f9ff", borderRadius: "10px", padding: "14px 16px", marginBottom: "10px", border: "1px solid #e8ecff" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                          <span style={{ fontWeight: 700, color: "#333", fontSize: "14px" }}>
+                            {c.relacao ? c.relacao + " " : ""}{c.nome}
+                          </span>
+                          <button type="button" onClick={() => copiarLink(link)}
+                            style={{ background: "#667eea", color: "white", border: "none", borderRadius: "6px", padding: "6px 14px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}>
+                            Copiar link
+                          </button>
+                        </div>
+                        <input readOnly value={link}
+                          style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #e0e0e0", fontSize: "12px", color: "#888", background: "white", boxSizing: "border-box" }} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+                <button onClick={() => navigate("/evento/" + eventoId)} className="btn btn-primary" style={{ flex: 1 }}>
+                  Ver Detalhes do Evento
+                </button>
+                <button onClick={() => navigate("/meus-convites")} className="btn"
+                  style={{ flex: 1, background: "#f0f4ff", color: "#667eea", border: "1px solid #c5cae9" }}>
+                  Meus Convites
+                </button>
               </div>
             </div>
+          )}
 
-            <button type="submit" className="btn btn-primary" disabled={loading}
-              style={{ width: "100%", fontSize: "18px", padding: "18px", marginTop: "10px" }}>
-              {loading ? "A criar convite..." : "Criar Convite"}
-            </button>
-          </form>
-
-          {mensagem && (
+          {mensagem && !eventoId && (
             <div className={mensagem.includes("sucesso") ? "alert alert-success" : "alert alert-error"}
               style={{ marginTop: "20px", textAlign: "center" }}>
               {mensagem}
