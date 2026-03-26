@@ -59,75 +59,96 @@ function MusicaPlayer({ url }) {
   );
 }
 
-function Envelope({ nome, relacao, nomeEvento, onAbrir }) {
+function Envelope({ nome, relacao, nomeEvento, dataEvento, horaEvento, localEvento, onAbrir }) {
   const [abrindo, setAbrindo] = useState(false);
   const abrir = () => { if (abrindo) return; setAbrindo(true); setTimeout(onAbrir, 800); };
-  const partes = nomeEvento ? nomeEvento.split(/[&]/i).map(s => s.trim()).filter(Boolean) : [nomeEvento];
+  const partes = nomeEvento ? nomeEvento.split(/[&]/).map(s => s.trim()).filter(Boolean) : [nomeEvento];
+
+  const dataFmt = dataEvento ? new Date(dataEvento).toLocaleDateString("pt-PT", { weekday:"long", day:"numeric", month:"long", year:"numeric" }) : "";
+  const diaSemana = dataEvento ? new Date(dataEvento).toLocaleDateString("pt-PT", { weekday:"long" }).toUpperCase() : "";
 
   return (
-    <div style={{ minHeight:"100vh", background:"#f5f0eb", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter',sans-serif", overflow:"hidden", position:"relative" }}>
-      <style>{CSS + "@keyframes rodar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}"}</style>
+    <div style={{ minHeight:"100vh", background:"#faf7f4", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter',sans-serif", overflow:"hidden", position:"relative" }}>
+      <style>{CSS + "@keyframes rodar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes aparecer{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}"}</style>
 
-      {/* Cantos decorativos */}
-      <div style={{ position:"absolute", top:"20px", left:"20px", width:"28px", height:"28px", borderTop:"2px solid #c9b8a8", borderLeft:"2px solid #c9b8a8", opacity:0.6 }}/>
-      <div style={{ position:"absolute", top:"20px", right:"20px", width:"28px", height:"28px", borderTop:"2px solid #c9b8a8", borderRight:"2px solid #c9b8a8", opacity:0.6 }}/>
-      <div style={{ position:"absolute", bottom:"20px", left:"20px", width:"28px", height:"28px", borderBottom:"2px solid #c9b8a8", borderLeft:"2px solid #c9b8a8", opacity:0.6 }}/>
-      <div style={{ position:"absolute", bottom:"20px", right:"20px", width:"28px", height:"28px", borderBottom:"2px solid #c9b8a8", borderRight:"2px solid #c9b8a8", opacity:0.6 }}/>
+      {/* Borda decorativa dupla */}
+      <div style={{ position:"absolute", inset:"16px", border:"1px solid #d4c5b5", pointerEvents:"none", zIndex:0 }}/>
+      <div style={{ position:"absolute", inset:"22px", border:"1px solid #e8ddd4", pointerEvents:"none", zIndex:0 }}/>
 
-      {/* Bolinhas laterais */}
-      <div style={{ position:"absolute", left:"14px", top:"50%", transform:"translateY(-50%)", display:"flex", flexDirection:"column", gap:"10px" }}>
-        {[0.3,0.5,0.7,0.5,0.3,0.2].map((o,i) => <div key={i} style={{ width:"10px", height:"10px", borderRadius:"50%", background:"#e8b4b8", opacity:o }}/>)}
+      {/* Cantos florais/decorativos */}
+      {[[0,0,"0","0"],[0,0,"0","auto"],[0,0,"auto","0"],[0,0,"auto","auto"]].map((_,i) => {
+        const tops = ["12px","12px","auto","auto"];
+        const bots = ["auto","auto","12px","12px"];
+        const lefts = ["12px","auto","12px","auto"];
+        const rights = ["auto","12px","auto","12px"];
+        const bt = ["border-top","border-top","border-bottom","border-bottom"];
+        const bl = ["border-left","border-right","border-left","border-right"];
+        return (
+          <div key={i} style={{ position:"absolute", top:tops[i], bottom:bots[i], left:lefts[i], right:rights[i], width:"40px", height:"40px", borderTop: i<2 ? "2px solid #b8a898" : undefined, borderBottom: i>=2 ? "2px solid #b8a898" : undefined, borderLeft: i%2===0 ? "2px solid #b8a898" : undefined, borderRight: i%2===1 ? "2px solid #b8a898" : undefined, zIndex:1 }}/>
+        );
+      })}
+
+      {/* Bolinhas laterais rosas */}
+      <div style={{ position:"absolute", left:"8px", top:"50%", transform:"translateY(-50%)", display:"flex", flexDirection:"column", gap:"8px", zIndex:1 }}>
+        {[0.25,0.45,0.65,0.45,0.25,0.15].map((o,i) => <div key={i} style={{ width:"9px", height:"9px", borderRadius:"50%", background:"#e8b4b8", opacity:o }}/>)}
       </div>
-      <div style={{ position:"absolute", right:"14px", top:"50%", transform:"translateY(-50%)", display:"flex", flexDirection:"column", gap:"10px" }}>
-        {[0.3,0.5,0.7,0.5,0.3,0.2].map((o,i) => <div key={i} style={{ width:"10px", height:"10px", borderRadius:"50%", background:"#e8b4b8", opacity:o }}/>)}
+      <div style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", display:"flex", flexDirection:"column", gap:"8px", zIndex:1 }}>
+        {[0.25,0.45,0.65,0.45,0.25,0.15].map((o,i) => <div key={i} style={{ width:"9px", height:"9px", borderRadius:"50%", background:"#e8b4b8", opacity:o }}/>)}
       </div>
 
-      <div style={{ textAlign:"center", maxWidth:"380px", width:"100%", padding:"40px 24px", animation:"aparecer 0.8s ease" }}>
+      <div style={{ textAlign:"center", maxWidth:"360px", width:"100%", padding:"48px 32px", animation:"aparecer 0.8s ease", position:"relative", zIndex:2 }}>
 
-        {/* Estrela */}
-        <div style={{ fontSize:"18px", marginBottom:"14px", opacity:0.4, color:"#8a9bb0" }}>✦</div>
+        {/* Estrela decorativa */}
+        <div style={{ color:"#8a9bb0", fontSize:"16px", marginBottom:"12px", opacity:0.5 }}>✦</div>
 
         {/* Nome do convidado */}
         {nome && (
-          <div style={{ marginBottom:"20px" }}>
+          <div style={{ marginBottom:"18px" }}>
             <p style={{ color:"#8a9bb0", fontSize:"10px", fontWeight:700, letterSpacing:"3px", textTransform:"uppercase", marginBottom:"8px" }}>
               {relacao ? relacao.toUpperCase() + " DE HONRA" : "CONVIDADO DE HONRA"}
             </p>
-            <h2 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(22px,5vw,32px)", fontWeight:700, fontStyle:"italic", margin:0 }}>
+            <h2 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(20px,5vw,30px)", fontWeight:700, fontStyle:"italic", margin:0 }}>
               {relacao ? relacao + " " + nome : nome}
             </h2>
           </div>
         )}
 
-        {/* Badges */}
-        {nome && (
-          <div style={{ display:"flex", gap:"8px", justifyContent:"center", marginBottom:"24px" }}>
+        {/* Badges data e local */}
+        <div style={{ display:"flex", gap:"8px", justifyContent:"center", marginBottom:"22px", flexWrap:"wrap" }}>
+          {diaSemana && (
             <div style={{ display:"flex", alignItems:"center", gap:"5px", background:"white", borderRadius:"20px", padding:"5px 12px", border:"1px solid #e8e0d8", fontSize:"11px", fontWeight:600, color:"#4a5568", letterSpacing:"1px" }}>
-              <span style={{ fontSize:"12px" }}>&#128197;</span> DOMINGO
+              <span>&#128197;</span> {diaSemana}
             </div>
-            <div style={{ display:"flex", alignItems:"center", gap:"5px", background:"white", borderRadius:"20px", padding:"5px 12px", border:"1px solid #e8e0d8", fontSize:"11px", fontWeight:600, color:"#4a5568", letterSpacing:"1px" }}>
-              <span style={{ fontSize:"12px" }}>&#128205;</span> MESA 1
+          )}
+          {localEvento && (
+            <div style={{ display:"flex", alignItems:"center", gap:"5px", background:"white", borderRadius:"20px", padding:"5px 12px", border:"1px solid #e8e0d8", fontSize:"11px", fontWeight:600, color:"#4a5568", letterSpacing:"1px", maxWidth:"160px", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+              <span>&#128205;</span> {localEvento.toUpperCase()}
             </div>
-          </div>
-        )}
-
-        {/* Linha */}
-        <div style={{ width:"50px", height:"1px", background:"#d4c5b5", margin:"0 auto 28px" }}/>
-
-        {/* Nome do evento */}
-        <div style={{ marginBottom:"44px" }}>
-          {partes.length >= 2 ? (
-            <>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(44px,12vw,72px)", fontWeight:900, lineHeight:1, margin:"0 0 2px" }}>{partes[0]}</h1>
-              <p style={{ fontFamily:"'Playfair Display',serif", color:"#8a9bb0", fontSize:"clamp(24px,6vw,40px)", fontStyle:"italic", margin:"0 0 2px", lineHeight:1.2 }}>&amp;</p>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(44px,12vw,72px)", fontWeight:900, lineHeight:1, margin:0 }}>{partes[1]}</h1>
-            </>
-          ) : (
-            <h1 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(32px,8vw,56px)", fontWeight:900, lineHeight:1.1 }}>{nomeEvento}</h1>
           )}
         </div>
 
-        {/* Botao circular */}
+        {/* Data completa */}
+        {dataFmt && (
+          <p style={{ color:"#8a9bb0", fontSize:"12px", letterSpacing:"1px", marginBottom:"20px" }}>{dataFmt}{horaEvento ? " · " + horaEvento : ""}</p>
+        )}
+
+        {/* Linha divisoria */}
+        <div style={{ width:"48px", height:"1px", background:"#d4c5b5", margin:"0 auto 24px" }}/>
+
+        {/* Nome do evento grande */}
+        <div style={{ marginBottom:"40px" }}>
+          {partes.length >= 2 ? (
+            <>
+              <h1 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(40px,11vw,68px)", fontWeight:900, lineHeight:1, margin:"0 0 2px" }}>{partes[0]}</h1>
+              <p style={{ fontFamily:"'Playfair Display',serif", color:"#8a9bb0", fontSize:"clamp(22px,5vw,36px)", fontStyle:"italic", margin:"0 0 2px", lineHeight:1.2 }}>&amp;</p>
+              <h1 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(40px,11vw,68px)", fontWeight:900, lineHeight:1, margin:0 }}>{partes[1]}</h1>
+            </>
+          ) : (
+            <h1 style={{ fontFamily:"'Playfair Display',serif", color:"#1a2332", fontSize:"clamp(30px,8vw,52px)", fontWeight:900, lineHeight:1.1 }}>{nomeEvento}</h1>
+          )}
+        </div>
+
+        {/* Botao circular com texto rotativo */}
         <div onClick={abrir} style={{ position:"relative", width:"96px", height:"96px", margin:"0 auto", cursor: abrindo ? "wait" : "pointer", transition:"transform 0.2s" }}
           onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
           onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
@@ -381,7 +402,7 @@ function ConvitePublico() {
     </div>
   );
 
-  if (!aberto) return <Envelope nome={nomeConv} relacao={relConv} nomeEvento={evento.nome_evento} onAbrir={() => setAberto(true)}/>;
+  if (!aberto) return <Envelope nome={nomeConv} relacao={relConv} nomeEvento={evento.nome_evento} dataEvento={evento.data_evento} horaEvento={evento.hora_evento} localEvento={evento.local_evento} onAbrir={() => setAberto(true)}/>;
   return <ConviteSlides evento={evento} nomeConv={nomeConv} relConv={relConv}/>;
 }
 
