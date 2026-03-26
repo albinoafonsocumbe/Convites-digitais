@@ -1,6 +1,5 @@
 {
-  "buildCommand": "npm install && npm run build",
+  "buildCommand": "cd convites-digital && npm install && npm run build",
   "outputDirectory": "convites-digital/build",
-  "installCommand": "npm install",
-  "rootDirectory": "convites-digital"
+  "installCommand": "cd convites-digital && npm install"
 }
