@@ -91,22 +91,24 @@
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 36px;
-  height: 36px;
-  background: none;
-  border: none;
+  width: 40px;
+  height: 40px;
+  background: #f0f2ff;
+  border: 1.5px solid #c5cae9;
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
+  padding: 8px;
+  border-radius: 8px;
   z-index: 1100;
+  flex-shrink: 0;
 }
 .navbar-toggle span {
   display: block;
   height: 2px;
-  background: #555;
+  background: #667eea;
   border-radius: 2px;
   transition: all 0.25s;
   transform-origin: center;
+  width: 100%;
 }
 .navbar-toggle.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .navbar-toggle.is-open span:nth-child(2) { opacity: 0; }
