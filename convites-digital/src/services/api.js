@@ -206,12 +206,8 @@ export const emailAPI = {
 // Upload directo ao Cloudinary (nao depende do backend)
 export const uploadAPI = {
   upload: async (file, tipo, onProgress) => {
-    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    const preset    = process.env.REACT_APP_CLOUDINARY_PRESET;
-
-    if (!cloudName || !preset) {
-      throw new Error("Cloudinary não configurado. Verifica REACT_APP_CLOUDINARY_CLOUD_NAME e REACT_APP_CLOUDINARY_PRESET no ficheiro .env");
-    }
+    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || "dzpbjhut2";
+    const preset    = process.env.REACT_APP_CLOUDINARY_PRESET || "Convites";
 
     const resourceType = tipo === "image" ? "image" : "video";
 

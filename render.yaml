@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: convites-digitais-backend
+    env: node
+    rootDir: convites-digital/backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: EMAIL_SERVICE
+        value: gmail
+      - key: EMAIL_USER
+        value: albinoafonsocumbe8687@gmail.com
+      - key: EMAIL_PASS
+        value: zpkvptspbboyuabi
+      - key: CLOUDINARY_CLOUD_NAME
+        value: dzpbjhut2
+      - key: CLOUDINARY_API_KEY
+        value: "816896112965973"
+      - key: CLOUDINARY_API_SECRET
+        value: dqJejhlTHYmhqqbwMCgoB9Kh3EI
+      - key: FRONTEND_URL
+        value: https://convites-digitais.vercel.app
