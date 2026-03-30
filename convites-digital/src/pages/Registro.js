@@ -40,16 +40,13 @@ function Registro() {
     }
 
     try {
-      const response = await authAPI.registro({
+      await authAPI.registro({
         nome: formData.nome,
         email: formData.email,
         senha: formData.senha,
       });
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
-      sessionStorage.setItem("token", response.token);
-      sessionStorage.setItem("user", JSON.stringify(response.user));
-      navigate("/");
+      // Nao entrar automaticamente — redirecionar para login por seguranca
+      navigate("/login", { state: { mensagem: "Conta criada com sucesso! Faz login para continuar.", email: formData.email } });
     } catch (error) {
       if (error.message.includes("NetworkError") || error.message.includes("Failed to fetch")) {
         setErro("Não foi possível conectar ao servidor.");

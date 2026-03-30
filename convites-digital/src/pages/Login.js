@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { authAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";
@@ -11,7 +11,10 @@ const API_HOST = process.env.REACT_APP_API_URL
 
 function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", senha: "" });
+  const location = useLocation();
+  const mensagemBemVindo = location.state?.mensagem || "";
+  const emailPre = location.state?.email || "";
+  const [form, setForm] = useState({ email: emailPre, senha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +48,10 @@ function Login() {
         </div>
 
         <div className="form-container">
+          {mensagemBemVindo && (
+            <div className="alert alert-success" style={{ marginBottom: "16px" }}>{mensagemBemVindo}</div>
+          )}
+
           {/* Botão Google */}
           <button
             type="button"
