@@ -55,8 +55,6 @@ function Envelope({ nome, relacao, nomeEvento, dataEvento, horaEvento, localEven
   const [abrindo, setAbrindo] = useState(false);
   const abrir = () => { if(abrindo) return; setAbrindo(true); setTimeout(onAbrir, 1000); };
   const partes = nomeEvento ? nomeEvento.split(/[&]/).map(s=>s.trim()).filter(Boolean) : [nomeEvento];
-  const dataFmt = dataEvento ? new Date(dataEvento).toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) : "";
-  const diaSemana = dataEvento ? new Date(dataEvento).toLocaleDateString("pt-PT",{weekday:"long"}) : "";
   const dataNum = dataEvento ? new Date(dataEvento).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit",year:"numeric"}) : "";
   return (
     <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#1a0a2e 0%,#2d1b4e 40%,#1a2040 100%)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif",overflow:"hidden",position:"relative"}}>
