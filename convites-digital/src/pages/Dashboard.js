@@ -53,16 +53,16 @@ function Dashboard() {
     <div className="page-container">
       <h1 className="page-title">Dashboard</h1>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginBottom: "30px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "14px", marginBottom: "28px" }}>
         {[
-          { label: "Total de Convites", value: stats.total, gradient: "linear-gradient(135deg,#667eea,#764ba2)" },
-          { label: "Eventos Proximos", value: stats.proximos, gradient: "linear-gradient(135deg,#f093fb,#f5576c)" },
-          { label: "Eventos Passados", value: stats.passados, gradient: "linear-gradient(135deg,#4facfe,#00f2fe)" },
-          { label: "Total Confirmados", value: stats.totalConfirmados, gradient: "linear-gradient(135deg,#11998e,#38ef7d)" },
+          { label: "Total de Convites",   value: stats.total,            color: "#667eea" },
+          { label: "Eventos Próximos",    value: stats.proximos,         color: "#f5576c" },
+          { label: "Eventos Passados",    value: stats.passados,         color: "#4facfe" },
+          { label: "Total Confirmados",   value: stats.totalConfirmados, color: "#11998e" },
         ].map((item) => (
-          <div key={item.label} className="card" style={{ textAlign: "center", background: item.gradient, color: "white", padding: "24px" }}>
-            <h3 style={{ fontSize: "44px", margin: "0 0 8px", fontWeight: 800 }}>{item.value}</h3>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{item.label}</p>
+          <div key={item.label} className="stat-card" style={{ borderLeft: `3px solid ${item.color}` }}>
+            <span className="stat-value" style={{ color: item.color }}>{item.value}</span>
+            <span className="stat-label">{item.label}</span>
           </div>
         ))}
       </div>

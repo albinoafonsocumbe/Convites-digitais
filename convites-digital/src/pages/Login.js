@@ -1,113 +1,92 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // eslint-disable-line no-unused-vars
+import { useNavigate, Link } from "react-router-dom";
 import { authAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
+const API_HOST = process.env.REACT_APP_API_URL
+  || (window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : `http://${window.location.hostname}:5000`);
+
 function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", senha: "" });
+  const [form, setForm] = useState({ email: "", senha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErro("");
-  };
+  const ch = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); setErro(""); };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErro("");
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErro("Por favor, insira um email válido");
-      setLoading(false);
-      return;
-    }
-
-    if (formData.senha.length < 6) {
-      setErro("A senha deve ter no mínimo 6 caracteres");
-      setLoading(false);
-      return;
-    }
-
+    e.preventDefault(); setLoading(true); setErro("");
     try {
-      const response = await authAPI.login(formData);
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
-      sessionStorage.setItem("token", response.token);
-      sessionStorage.setItem("user", JSON.stringify(response.user));
+      const r = await authAPI.login(form);
+      localStorage.setItem("token", r.token);
+      localStorage.setItem("user", JSON.stringify(r.user));
+      sessionStorage.setItem("token", r.token);
+      sessionStorage.setItem("user", JSON.stringify(r.user));
       navigate("/");
-    } catch (error) {
-      if (error.message.includes("NetworkError") || error.message.includes("Failed to fetch")) {
-        setErro("Não foi possível conectar ao servidor.");
-      } else {
-        setErro(error.message || "Erro ao fazer login. Tente novamente.");
-      }
+    } catch (err) {
+      setErro(err.message || "Erro ao fazer login.");
       setLoading(false);
     }
+  };
+
+  const handleGoogle = () => {
+    window.location.href = `${API_HOST}/api/auth/google`;
   };
 
   return (
     <div className="page-container">
-      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <h1 className="page-title" style={{ marginBottom: "10px" }}>Bem-vindo de Volta</h1>
-          <p style={{ color: "white", fontSize: "18px", opacity: 0.9 }}>
-            Faça login para gerenciar seus convites
-          </p>
+      <div style={{ maxWidth: "420px", margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <h1 className="page-title" style={{ marginBottom: "8px" }}>Entrar</h1>
+          <p style={{ color: "white", fontSize: "15px", opacity: 0.85 }}>Gere os teus convites digitais</p>
         </div>
 
         <div className="form-container">
+          {/* Botão Google */}
+          <button
+            type="button"
+            onClick={handleGoogle}
+            style={{ width:"100%", display:"flex", alignItems:"center", justifyContent:"center", gap:"10px", padding:"11px 16px", background:"white", border:"1px solid #ddd", borderRadius:"10px", cursor:"pointer", fontSize:"14px", fontWeight:600, color:"#333", marginBottom:"20px" }}
+          >
+            <svg width="18" height="18" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Continuar com Google
+          </button>
+
+          <div style={{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"20px" }}>
+            <div style={{ flex:1, height:"1px", background:"#e8e8e8" }}/>
+            <span style={{ fontSize:"12px", color:"#aaa" }}>ou</span>
+            <div style={{ flex:1, height:"1px", background:"#e8e8e8" }}/>
+          </div>
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="seu@email.com"
-                autoComplete="email"
-              />
+              <input type="email" name="email" value={form.email} onChange={ch} required placeholder="seu@email.com" autoComplete="email" />
             </div>
-
             <div className="form-group">
               <label>Senha</label>
-              <input
-                type="password"
-                name="senha"
-                value={formData.senha}
-                onChange={handleChange}
-                required
-                placeholder="••••••••"
-                autoComplete="current-password"
-              />
+              <input type="password" name="senha" value={form.senha} onChange={ch} required placeholder="••••••••" autoComplete="current-password" />
             </div>
 
-            {erro && (
-              <div className="alert alert-error" style={{ marginBottom: "20px" }}>
-                {erro}
-              </div>
-            )}
+            {erro && <div className="alert alert-error" style={{ marginBottom:"16px" }}>{erro}</div>}
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-              style={{ width: "100%", fontSize: "18px", padding: "15px" }}
-            >
-              {loading ? "Entrando..." : "Entrar"}
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width:"100%", padding:"12px", fontSize:"15px" }}>
+              {loading ? "A entrar..." : "Entrar"}
             </button>
           </form>
 
-          <div style={{ textAlign: "center", marginTop: "25px", paddingTop: "25px", borderTop: "1px solid #e0e0e0" }}>
-            <p style={{ color: "#666", marginBottom: "10px" }}>Ainda não tem uma conta?</p>
+          <div style={{ textAlign:"center", marginTop:"20px", paddingTop:"20px", borderTop:"1px solid #eee" }}>
+            <p style={{ color:"#888", fontSize:"13px", marginBottom:"10px" }}>Ainda não tens conta?</p>
             <Link to="/registro">
-              <button className="btn" style={{ background: "transparent", border: "2px solid #667eea", color: "#667eea" }}>
+              <button className="btn" style={{ background:"transparent", border:"1.5px solid #667eea", color:"#667eea", padding:"9px 24px", fontSize:"14px" }}>
                 Criar Conta
               </button>
             </Link>

@@ -92,12 +92,13 @@ router.get("/:id", validarId, async (req, res, next) => {
 
 // POST /api/convites
 router.post("/", authenticateToken, validarEvento, async (req, res, next) => {
-  const { titulo, descricao, data, local, musica_url, video_url, fotos, hora_evento, foto_capa, endereco_maps, programa, refeicao } = req.body;
+  const { titulo, descricao, data, local, musica_url, video_url, videos_urls, fotos, hora_evento, foto_capa, endereco_maps, programa, refeicao } = req.body;
   try {
     const fotosArray = Array.isArray(fotos) ? fotos.filter(f => f?.trim()) : [];
+    const videosArray = Array.isArray(videos_urls) ? videos_urls.filter(v => v?.trim()) : (video_url?.trim() ? [video_url.trim()] : []);
     const result = await pool.query(
-      "INSERT INTO eventos (usuario_id, nome_evento, data_evento, local_evento, mensagem, musica_url, video_url, fotos, hora_evento, foto_capa, endereco_maps, programa, refeicao, criado_em) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,NOW()) RETURNING *",
-      [req.user.id, titulo.trim(), data, local.trim(), descricao?.trim() || "", musica_url?.trim() || null, video_url?.trim() || null, fotosArray, hora_evento || null, foto_capa?.trim() || null, endereco_maps?.trim() || null, JSON.stringify(programa || []), JSON.stringify(refeicao || { pratos: [], bebidas: [] })]
+      "INSERT INTO eventos (usuario_id, nome_evento, data_evento, local_evento, mensagem, musica_url, video_url, videos_urls, fotos, hora_evento, foto_capa, endereco_maps, programa, refeicao, criado_em) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NOW()) RETURNING *",
+      [req.user.id, titulo.trim(), data, local.trim(), descricao?.trim() || "", musica_url?.trim() || null, videosArray[0] || null, videosArray, fotosArray, hora_evento || null, foto_capa?.trim() || null, endereco_maps?.trim() || null, JSON.stringify(programa || []), JSON.stringify(refeicao || { pratos: [], bebidas: [] })]
     );
     console.log("✅ Evento criado:", result.rows[0].id);
     res.status(201).json(result.rows[0]);
@@ -108,16 +109,17 @@ router.post("/", authenticateToken, validarEvento, async (req, res, next) => {
 
 // PUT /api/convites/:id
 router.put("/:id", authenticateToken, validarId, validarEvento, async (req, res, next) => {
-  const { titulo, descricao, data, local, musica_url, video_url, fotos, hora_evento, foto_capa, endereco_maps, programa, refeicao } = req.body;
+  const { titulo, descricao, data, local, musica_url, video_url, videos_urls, fotos, hora_evento, foto_capa, endereco_maps, programa, refeicao } = req.body;
   const { id } = req.params;
   try {
     const check = await pool.query("SELECT usuario_id FROM eventos WHERE id = $1", [id]);
     if (check.rows.length === 0) return res.status(404).json({ error: "Convite não encontrado" });
     if (check.rows[0].usuario_id !== req.user.id) return res.status(403).json({ error: "Sem permissão" });
     const fotosArray = Array.isArray(fotos) ? fotos.filter(f => f?.trim()) : [];
+    const videosArray = Array.isArray(videos_urls) ? videos_urls.filter(v => v?.trim()) : (video_url?.trim() ? [video_url.trim()] : []);
     const result = await pool.query(
-      "UPDATE eventos SET nome_evento=$1, mensagem=$2, data_evento=$3, local_evento=$4, musica_url=$5, video_url=$6, fotos=$7, hora_evento=$8, foto_capa=$9, endereco_maps=$10, programa=$11, refeicao=$12 WHERE id=$13 RETURNING *",
-      [titulo.trim(), descricao?.trim() || "", data, local.trim(), musica_url?.trim() || null, video_url?.trim() || null, fotosArray, hora_evento || null, foto_capa?.trim() || null, endereco_maps?.trim() || null, JSON.stringify(programa || []), JSON.stringify(refeicao || { pratos: [], bebidas: [] }), id]
+      "UPDATE eventos SET nome_evento=$1, mensagem=$2, data_evento=$3, local_evento=$4, musica_url=$5, video_url=$6, videos_urls=$7, fotos=$8, hora_evento=$9, foto_capa=$10, endereco_maps=$11, programa=$12, refeicao=$13 WHERE id=$14 RETURNING *",
+      [titulo.trim(), descricao?.trim() || "", data, local.trim(), musica_url?.trim() || null, videosArray[0] || null, videosArray, fotosArray, hora_evento || null, foto_capa?.trim() || null, endereco_maps?.trim() || null, JSON.stringify(programa || []), JSON.stringify(refeicao || { pratos: [], bebidas: [] }), id]
     );
     res.json(result.rows[0]);
   } catch (err) {

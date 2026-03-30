@@ -147,3 +147,69 @@
   font-size: 20px;
   pointer-events: none;
 }
+
+/* ── CriarConvite / EditarConvite responsivo ── */
+.form-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.grid-3col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+.grid-prog {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.grid-prog2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+}
+.grid-row-auto {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.url-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.url-inline input {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .form-card {
+    padding: 18px 14px;
+    border-radius: 12px;
+  }
+  .grid-3col {
+    grid-template-columns: 1fr;
+  }
+  .grid-prog {
+    grid-template-columns: 1fr 1fr;
+  }
+  .grid-prog2 {
+    grid-template-columns: 1fr;
+  }
+  .grid-prog2 button[type="button"] {
+    width: 100%;
+  }
+  .grid-row-auto {
+    grid-template-columns: 1fr;
+  }
+  .grid-row-auto button[type="button"] {
+    width: 100%;
+  }
+}

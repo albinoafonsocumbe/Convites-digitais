@@ -75,14 +75,14 @@ function Home() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "25px", marginBottom: "50px" }}>
-        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", color: "white", border: "none" }}>
-          <h3 style={{ fontSize: "42px", margin: "10px 0", fontWeight: "800" }}>{stats.total}</h3>
-          <p style={{ fontSize: "18px", opacity: 0.95, fontWeight: "600" }}>Total de Eventos</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "14px", marginBottom: "36px" }}>
+        <div className="stat-card" style={{ borderLeft: "3px solid #667eea" }}>
+          <span className="stat-value" style={{ color: "#667eea" }}>{stats.total}</span>
+          <span className="stat-label">Total de Eventos</span>
         </div>
-        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", color: "white", border: "none" }}>
-          <h3 style={{ fontSize: "42px", margin: "10px 0", fontWeight: "800" }}>{stats.proximos}</h3>
-          <p style={{ fontSize: "18px", opacity: 0.95, fontWeight: "600" }}>Eventos Próximos</p>
+        <div className="stat-card" style={{ borderLeft: "3px solid #f5576c" }}>
+          <span className="stat-value" style={{ color: "#f5576c" }}>{stats.proximos}</span>
+          <span className="stat-label">Eventos Próximos</span>
         </div>
       </div>
 

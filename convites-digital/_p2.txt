@@ -1,0 +1,20 @@
+/* SLIDES */
+function ConviteSlides({ evento, nomeConv, relConv }) {
+  const [slide, setSlide] = useState(0);
+  const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({ nome_convidado:nomeConv||"", email:"", telefone:"", confirmado:true, numero_acompanhantes:0, mensagem:"" });
+  const trackRef = useRef();
+  const startX = useRef(null);
+
+  const programa = (()=>{ try{ return Array.isArray(evento.programa)?evento.programa:JSON.parse(evento.programa||"[]"); }catch{ return []; } })().filter(p=>p.nome);
+  const refData = (()=>{ try{ return typeof evento.refeicao==="object"?evento.refeicao:JSON.parse(evento.refeicao||"{}"); }catch{ return {}; } })();
+  const pratos = (refData?.pratos||[]).filter(p=>p.nome);
+  const bebidas = (refData?.bebidas||[]).filter(b=>b.nome);
+
+  /* suporte a multiplos videos: video_url pode ser string ou array JSON */
+  const videos = (() => {
+    if (!evento.video_url) return [];
+    try {
+      const parsed = JSON.parse(evento.video_url);

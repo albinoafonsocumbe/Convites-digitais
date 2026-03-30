@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import CriarConvite from "./pages/CriarConvite";
 import MeusConvites from "./pages/MeusConvites";
 import DetalhesEvento from "./pages/DetalhesEvento";
+import EditarConvite from "./pages/EditarConvite";
 import ConvitePublico from "./pages/ConvitePublico";
 
 // Sessão apenas dura enquanto o browser está aberto (sessionStorage)
@@ -42,6 +43,7 @@ function App() {
         <Route path="/criar-convite" element={<PrivateRoute><Navbar /><CriarConvite /></PrivateRoute>} />
         <Route path="/meus-convites" element={<PrivateRoute><Navbar /><MeusConvites /></PrivateRoute>} />
         <Route path="/evento/:id" element={<PrivateRoute><Navbar /><DetalhesEvento /></PrivateRoute>} />
+        <Route path="/editar/:id" element={<PrivateRoute><Navbar /><EditarConvite /></PrivateRoute>} />
 
         {/* Qualquer rota desconhecida vai para login */}
         <Route path="*" element={<Navigate to="/login" replace />} />

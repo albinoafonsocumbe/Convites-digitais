@@ -203,18 +203,59 @@ export const emailAPI = {
   },
 };
 
-// Upload de ficheiros (fotos, videos, audio) via backend -> Cloudinary
+// Upload directo ao Cloudinary (nao depende do backend)
 export const uploadAPI = {
-  upload: async (file, tipo) => {
-    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+  upload: async (file, tipo, onProgress) => {
+    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+    const preset    = process.env.REACT_APP_CLOUDINARY_PRESET;
+
+    if (!cloudName || !preset) {
+      throw new Error("Cloudinary não configurado. Verifica REACT_APP_CLOUDINARY_CLOUD_NAME e REACT_APP_CLOUDINARY_PRESET no ficheiro .env");
+    }
+
+    const resourceType = tipo === "image" ? "image" : "video";
+
+    const maxSize = tipo === "image" ? 10 * 1024 * 1024 : 200 * 1024 * 1024;
+    if (file.size > maxSize) {
+      const maxMB = maxSize / 1024 / 1024;
+      throw new Error(`Ficheiro demasiado grande. Máximo: ${maxMB}MB`);
+    }
+
     const fd = new FormData();
     fd.append("file", file);
-    fd.append("tipo", tipo); // image | video | audio
-    const response = await fetch(`${API_URL}/upload`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: fd,
+    fd.append("upload_preset", preset);
+    fd.append("folder", "convites");
+
+    // Usar XMLHttpRequest para suportar progresso em ficheiros grandes
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`);
+
+      if (onProgress) {
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+        });
+      }
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const data = JSON.parse(xhr.responseText);
+          resolve({ url: data.secure_url });
+        } else {
+          const body = JSON.parse(xhr.responseText || "{}");
+          const msg = body.error?.message || `Erro ${xhr.status}`;
+          if (msg.includes("Upload preset not found")) return reject(new Error("Preset de upload não encontrado. Verifica REACT_APP_CLOUDINARY_PRESET no .env"));
+          if (msg.includes("storage limit")) return reject(new Error("Limite de armazenamento Cloudinary atingido."));
+          if (msg.includes("File size too large")) return reject(new Error("Ficheiro demasiado grande para o Cloudinary."));
+          reject(new Error(msg));
+        }
+      });
+
+      xhr.addEventListener("error", () => reject(new Error("Sem ligação à internet ou Cloudinary inacessível.")));
+      xhr.addEventListener("timeout", () => reject(new Error("Timeout no upload. Tenta com um ficheiro mais pequeno.")));
+      xhr.timeout = 300000; // 5 minutos
+
+      xhr.send(fd);
     });
-    return handleResponse(response);
   },
 };

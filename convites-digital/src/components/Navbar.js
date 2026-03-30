@@ -1,10 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user") || "null");
   const isAuthenticated = !!sessionStorage.getItem("token");
+  const [open, setOpen] = useState(false);
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
@@ -14,41 +16,56 @@ function Navbar() {
     navigate("/login");
   };
 
+  const close = () => setOpen(false);
+
   return (
     <nav className="navbar">
-      <Link to="/" style={{ textDecoration: "none" }}>
-        <h2 className="navbar-brand">Convites Digitais</h2>
-      </Link>
-      <div className="navbar-links">
-        <Link to="/">Home</Link>
+      <NavLink to="/" className="navbar-brand" onClick={close}>
+        Convites Digitais
+      </NavLink>
+
+      <button
+        className={`navbar-toggle${open ? " is-open" : ""}`}
+        onClick={() => setOpen(o => !o)}
+        aria-label="Menu"
+      >
+        <span/><span/><span/>
+      </button>
+
+      {open && <div className="navbar-overlay" onClick={close}/>}
+
+      <div className={`navbar-menu${open ? " is-open" : ""}`}>
+        <NavLink to="/" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close} end>
+          Home
+        </NavLink>
+
         {isAuthenticated ? (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/criar-convite">Criar Convite</Link>
-            <Link to="/meus-convites">Meus Convites</Link>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginLeft: "15px", paddingLeft: "15px", borderLeft: "2px solid #e0e0e0" }}>
-              <span style={{ color: "#667eea", fontWeight: 600 }}>{user?.nome}</span>
-              <button
-                onClick={handleLogout}
-                style={{
-                  padding: "8px 16px",
-                  background: "linear-gradient(135deg, #f5576c 0%, #f093fb 100%)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  fontSize: "14px"
-                }}
-              >
+            <NavLink to="/dashboard" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
+              Dashboard
+            </NavLink>
+            <NavLink to="/criar-convite" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
+              Criar Convite
+            </NavLink>
+            <NavLink to="/meus-convites" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
+              Meus Convites
+            </NavLink>
+            <div className="navbar-divider"/>
+            <div className="navbar-user">
+              <span className="navbar-username">{user?.nome?.split(" ")[0]}</span>
+              <button className="navbar-logout" onClick={() => { close(); handleLogout(); }}>
                 Sair
               </button>
             </div>
           </>
         ) : (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/registro">Criar Conta</Link>
+            <NavLink to="/login" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
+              Login
+            </NavLink>
+            <NavLink to="/registro" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
+              Criar Conta
+            </NavLink>
           </>
         )}
       </div>
