@@ -61,7 +61,28 @@ pool.connect((err, _client, release) => {
   if (err) { console.error("Erro PostgreSQL:", err.message); process.exit(1); }
   console.log("Conectado ao PostgreSQL");
   release();
+  // Correr migracoes automaticamente ao arrancar
+  runMigrations();
 });
+
+async function runMigrations() {
+  const migrations = [
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS musica_url VARCHAR(500)",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS videos_urls TEXT[]",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS fotos TEXT[]",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS foto_capa VARCHAR(500)",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS hora_evento VARCHAR(10)",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS endereco_maps VARCHAR(500)",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS programa JSONB DEFAULT '[]'",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS refeicao JSONB DEFAULT '{}'",
+  ];
+  for (const sql of migrations) {
+    try { await pool.query(sql); }
+    catch (e) { console.error("Migração falhou:", e.message); }
+  }
+  console.log("Migracoes concluidas");
+}
 
 app.get("/", (_req, res) => res.json({ message: "API Convites Digitais", version: "2.0.0" }));
 
