@@ -172,8 +172,14 @@ router.post("/:id/confirmacoes", validarId, validarConfirmacao, async (req, res,
         "SELECT id FROM confirmacoes WHERE evento_id = $1 AND email = $2",
         [id, email.trim()]
       );
-      if (dup.rows.length > 0)
-        return res.status(409).json({ error: "Este email já confirmou presença neste evento" });
+      if (dup.rows.length > 0) {
+        // Actualizar confirmacao existente em vez de bloquear
+        const updated = await pool.query(
+          "UPDATE confirmacoes SET nome_convidado=$1, telefone=$2, confirmado=$3, numero_acompanhantes=$4, mensagem=$5 WHERE id=$6 RETURNING *",
+          [nome_convidado.trim(), telefone?.trim() || null, confirmado, numero_acompanhantes || 0, mensagem?.trim() || null, dup.rows[0].id]
+        );
+        return res.json(updated.rows[0]);
+      }
     }
 
     const result = await pool.query(

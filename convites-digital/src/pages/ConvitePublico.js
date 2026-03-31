@@ -37,7 +37,7 @@ function MusicaPlayer({ url, autoPlay }) {
 
   return (
     <div style={{position:"fixed",bottom:"14px",right:"14px",zIndex:9999,display:"flex",alignItems:"center",gap:"8px",background:"rgba(5,5,15,0.88)",backdropFilter:"blur(16px)",borderRadius:"50px",padding:"7px 14px 7px 7px",border:"1px solid rgba(255,255,255,0.08)",boxShadow:"0 8px 24px rgba(0,0,0,0.4)"}}>
-      <audio ref={ref} src={url} loop preload="none"/>
+      <audio ref={ref} src={url} loop preload="none" onError={()=>{}} onAbort={()=>{}} onStalled={()=>{}}/>
       <button onClick={tog} style={{width:"32px",height:"32px",borderRadius:"50%",background:on?"linear-gradient(135deg,#f093fb,#f5576c)":"linear-gradient(135deg,#667eea,#764ba2)",border:"none",cursor:"pointer",color:"white",fontSize:"13px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
         {on ? <svg width="12" height="12" viewBox="0 0 12 12" fill="white"><rect x="1" y="1" width="3.5" height="10" rx="1"/><rect x="7.5" y="1" width="3.5" height="10" rx="1"/></svg> : <svg width="12" height="12" viewBox="0 0 12 12" fill="white"><polygon points="2,1 11,6 2,11"/></svg>}
       </button>
