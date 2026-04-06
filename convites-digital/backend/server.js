@@ -67,7 +67,8 @@ pool.connect((err, _client, release) => {
 
 async function runMigrations() {
   const migrations = [
-    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS musica_url VARCHAR(500)",
+    "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token VARCHAR(100)",
+    "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token_expira TIMESTAMP",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS videos_urls TEXT[]",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS fotos TEXT[]",

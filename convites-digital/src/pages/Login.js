@@ -81,6 +81,9 @@ function Login() {
             <div className="form-group">
               <label>Senha</label>
               <input type="password" name="senha" value={form.senha} onChange={ch} required placeholder="••••••••" autoComplete="current-password" />
+              <div style={{ textAlign: "right", marginTop: "4px" }}>
+                <Link to="/esqueci-senha" style={{ fontSize: "12px", color: "#667eea" }}>Esqueci a senha</Link>
+              </div>
             </div>
 
             {erro && <div className="alert alert-error" style={{ marginBottom:"16px" }}>{erro}</div>}

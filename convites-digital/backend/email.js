@@ -139,4 +139,4 @@ const enviarConfirmacao = async ({ email, nomeConvidado, evento, confirmado, lin
   }
 };
 
-module.exports = { enviarConvite, enviarConfirmacao };
+module.exports = { enviarConvite, enviarConfirmacao, enviarEmail: sendEmail };

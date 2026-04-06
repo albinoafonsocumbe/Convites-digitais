@@ -1,8 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const passport = require("../passport-config");
 const pool = require("../db");
 const { authenticateToken, generateToken } = require("../auth");
+const { enviarEmail } = require("../email");
 
 const router = express.Router();
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,6 +87,80 @@ router.get("/me", authenticateToken, async (req, res, next) => {
       return res.status(404).json({ error: "Usuário não encontrado" });
 
     res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/auth/esqueci-senha
+router.post("/esqueci-senha", async (req, res, next) => {
+  const { email } = req.body;
+  if (!email || !emailRegex.test(email))
+    return res.status(400).json({ error: "Email inválido" });
+
+  try {
+    const result = await pool.query("SELECT id, nome FROM usuarios WHERE email = $1", [email.toLowerCase().trim()]);
+    // Sempre responder com sucesso para não revelar se o email existe
+    if (result.rows.length === 0)
+      return res.json({ message: "Se o email existir, receberás um link de recuperação." });
+
+    const user = result.rows[0];
+    const token = crypto.randomBytes(32).toString("hex");
+    const expira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    // Guardar token na base de dados
+    await pool.query(
+      "UPDATE usuarios SET reset_token=$1, reset_token_expira=$2 WHERE id=$3",
+      [token, expira, user.id]
+    );
+
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const linkReset = `${frontendUrl}/reset-senha?token=${token}`;
+
+    await enviarEmail({
+      to: email.trim(),
+      subject: "Recuperação de senha — Convites Digitais",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px;">
+          <h2 style="color:#667eea;margin:0 0 16px;">Recuperar senha</h2>
+          <p style="color:#555;">Olá, <strong>${user.nome}</strong>.</p>
+          <p style="color:#555;">Recebemos um pedido para redefinir a tua senha. Clica no botão abaixo:</p>
+          <div style="text-align:center;margin:28px 0;">
+            <a href="${linkReset}" style="display:inline-block;background:#667eea;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;">Redefinir Senha</a>
+          </div>
+          <p style="color:#aaa;font-size:12px;">Este link expira em 1 hora. Se não pediste a recuperação, ignora este email.</p>
+          <p style="color:#aaa;font-size:11px;">Ou copia: ${linkReset}</p>
+        </div>
+      `,
+    });
+
+    res.json({ message: "Se o email existir, receberás um link de recuperação." });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/auth/reset-senha
+router.post("/reset-senha", async (req, res, next) => {
+  const { token, novaSenha } = req.body;
+  if (!token || !novaSenha || novaSenha.length < 6)
+    return res.status(400).json({ error: "Token e nova senha (mínimo 6 caracteres) são obrigatórios" });
+
+  try {
+    const result = await pool.query(
+      "SELECT id FROM usuarios WHERE reset_token=$1 AND reset_token_expira > NOW()",
+      [token]
+    );
+    if (result.rows.length === 0)
+      return res.status(400).json({ error: "Link inválido ou expirado. Pede um novo." });
+
+    const hash = await bcrypt.hash(novaSenha, 10);
+    await pool.query(
+      "UPDATE usuarios SET senha=$1, reset_token=NULL, reset_token_expira=NULL WHERE id=$2",
+      [hash, result.rows[0].id]
+    );
+
+    res.json({ message: "Senha redefinida com sucesso. Podes fazer login." });
   } catch (err) {
     next(err);
   }
