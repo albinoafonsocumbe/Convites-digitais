@@ -189,7 +189,9 @@ router.post("/:id/confirmacoes", validarId, validarConfirmacao, async (req, res,
 
     // Enviar email de confirmação em background (não bloqueia resposta)
     if (email) {
-      const linkConvite = `${process.env.FRONTEND_URL || "http://localhost:3000"}/convite/${id}`;
+      const origin1 = req.headers.origin || req.headers.referer?.replace(/\/$/, "") || process.env.FRONTEND_URL || "http://localhost:3000";
+      const frontendUrl1 = origin1.replace(/\/api.*$/, "").replace(/\/$/, "");
+      const linkConvite = `${frontendUrl1}/convite/${id}`;
       enviarConfirmacao({ email: email.trim(), nomeConvidado: nome_convidado.trim(), evento: existe.rows[0], confirmado, linkConvite })
         .catch(err => console.error("⚠️ Falha no email de confirmação:", err.message));
     }
@@ -240,7 +242,9 @@ router.post("/:id/enviar-email", authenticateToken, validarId, async (req, res, 
     if (eventoResult.rows.length === 0) return res.status(404).json({ error: "Evento não encontrado" });
     if (eventoResult.rows[0].usuario_id !== req.user.id) return res.status(403).json({ error: "Sem permissão" });
 
-    const linkConvite = `${process.env.FRONTEND_URL || "http://localhost:3000"}/convite/${id}`;
+    const origin2 = req.headers.origin || req.headers.referer?.replace(/\/$/, "") || process.env.FRONTEND_URL || "http://localhost:3000";
+    const frontendUrl2 = origin2.replace(/\/api.*$/, "").replace(/\/$/, "");
+    const linkConvite = `${frontendUrl2}/convite/${id}`;
     const resultados = await enviarConvite({
       emails,
       evento: eventoResult.rows[0],
