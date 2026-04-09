@@ -104,3 +104,14 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 
 server.timeout = 300000;
 server.keepAliveTimeout = 305000;
+
+// Keep-alive: ping a cada 14 minutos para evitar que o Render adormeça
+if (process.env.NODE_ENV === "production" && process.env.BACKEND_URL) {
+  setInterval(async () => {
+    try {
+      const fetch = require("node-fetch");
+      await fetch(`${process.env.BACKEND_URL}/`);
+      console.log("Keep-alive ping OK");
+    } catch (e) { /* silencioso */ }
+  }, 14 * 60 * 1000);
+}
