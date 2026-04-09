@@ -4,11 +4,6 @@ import { authAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
-const API_HOST = process.env.REACT_APP_API_URL
-  || (window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : `http://${window.location.hostname}:5000`);
-
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,10 +28,6 @@ function Login() {
       setErro(err.message || "Erro ao fazer login.");
       setLoading(false);
     }
-  };
-
-  const handleGoogle = () => {
-    window.location.href = `${API_HOST}/api/auth/google`;
   };
 
   return (
