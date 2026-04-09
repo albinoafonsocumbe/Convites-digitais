@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
 import { convitesAPI, confirmacoesAPI, emailAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";
@@ -117,20 +116,14 @@ function DetalhesEvento() {
         ))}
       </div>
 
-      {/* Link + QR */}
+      {/* Link */}
       <div style={sec}>
         <p style={{ fontSize: "13px", fontWeight: 600, color: "#333", marginBottom: "10px" }}>Link do Convite</p>
-        <div style={{ display: "flex", gap: "8px", marginBottom: "14px" }}>
+        <div style={{ display: "flex", gap: "8px" }}>
           <input readOnly value={linkConvite} style={{ ...inp, flex: 1, background: "#f9f9f9", fontSize: "13px" }} />
           <button onClick={copiarLink} style={{ padding: "9px 16px", background: linkCopiado ? "#11998e" : "#667eea", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: 600, fontSize: "13px", whiteSpace: "nowrap", transition: "background 0.2s" }}>
             {linkCopiado ? "Copiado" : "Copiar"}
           </button>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-          <div style={{ padding: "12px", background: "white", borderRadius: "10px", border: "1px solid #eee", display: "inline-block" }}>
-            <QRCodeSVG value={linkConvite} size={140} fgColor="#333" level="M" />
-          </div>
-          <span style={{ fontSize: "12px", color: "#aaa" }}>Digitaliza para abrir no telemóvel</span>
         </div>
       </div>
 
@@ -182,7 +175,6 @@ function DetalhesEvento() {
               <div><label style={{ fontSize: "11px", color: "#888", fontWeight: 600, display: "block", marginBottom: "4px" }}>Nome *</label><input style={inp} type="text" value={formData.nome_convidado} onChange={e => setFormData(p => ({ ...p, nome_convidado: e.target.value }))} required placeholder="Nome completo" /></div>
               <div><label style={{ fontSize: "11px", color: "#888", fontWeight: 600, display: "block", marginBottom: "4px" }}>Email</label><input style={inp} type="email" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} placeholder="email@exemplo.com" /></div>
               <div><label style={{ fontSize: "11px", color: "#888", fontWeight: 600, display: "block", marginBottom: "4px" }}>Telefone</label><input style={inp} type="tel" value={formData.telefone} onChange={e => setFormData(p => ({ ...p, telefone: e.target.value }))} placeholder="+258 84 000 0000" /></div>
-              <div><label style={{ fontSize: "11px", color: "#888", fontWeight: 600, display: "block", marginBottom: "4px" }}>Acompanhantes</label><input style={inp} type="number" min="0" value={formData.numero_acompanhantes} onChange={e => setFormData(p => ({ ...p, numero_acompanhantes: parseInt(e.target.value) || 0 }))} /></div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "10px" }}>
               {[true, false].map(v => (

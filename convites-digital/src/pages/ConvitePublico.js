@@ -317,7 +317,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ nome_convidado:nomeConv||"", email:"", telefone:"", confirmado:true, numero_acompanhantes:0, mensagem:"" });
+  const [form, setForm] = useState({ nome_convidado:nomeConv||"", email:"", telefone:"", confirmado:true, mensagem:"" });
   const trackRef = useRef();
   const startX = useRef(null);
   const programa = (()=>{ try{ return Array.isArray(evento.programa)?evento.programa:JSON.parse(evento.programa||"[]"); }catch{ return []; } })().filter(p=>p.nome);
@@ -334,7 +334,6 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
     ...(evento.endereco_maps||evento.local_evento?["localizacao"]:[]),
     ...(programa.length?["programa"]:[]),
     ...((pratos.length||bebidas.length)?["refeicao"]:[]),
-    "qrcode",
     "rsvp"
   ];
   const total = slides.length;
@@ -451,10 +450,9 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
         <div style={{marginBottom:"10px"}}><label style={lblS}>Vai comparecer? *</label>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"7px"}}>
             <button type="button" onClick={()=>setForm({...form,confirmado:true})} style={{padding:"9px",borderRadius:"8px",border:"2px solid "+(form.confirmado?PINK:"#ddd"),background:form.confirmado?"rgba(224,90,106,0.08)":"white",color:form.confirmado?PINK:"#aaa",fontWeight:700,fontSize:"12px",cursor:"pointer"}}>Sim, vou!</button>
-            <button type="button" onClick={()=>setForm({...form,confirmado:false,numero_acompanhantes:0})} style={{padding:"9px",borderRadius:"8px",border:"2px solid "+(!form.confirmado?PINK:"#ddd"),background:!form.confirmado?"rgba(224,90,106,0.08)":"white",color:!form.confirmado?PINK:"#aaa",fontWeight:700,fontSize:"12px",cursor:"pointer"}}>Não posso</button>
+            <button type="button" onClick={()=>setForm({...form,confirmado:false})} style={{padding:"9px",borderRadius:"8px",border:"2px solid "+(!form.confirmado?PINK:"#ddd"),background:!form.confirmado?"rgba(224,90,106,0.08)":"white",color:!form.confirmado?PINK:"#aaa",fontWeight:700,fontSize:"12px",cursor:"pointer"}}>Não posso</button>
           </div>
         </div>
-        {form.confirmado&&<div style={{marginBottom:"10px"}}><label style={lblS}>Acompanhantes</label><input type="number" min="0" max="20" value={form.numero_acompanhantes} onChange={e=>setForm({...form,numero_acompanhantes:parseInt(e.target.value)||0})} style={inpS}/></div>}
         <div style={{marginBottom:"12px"}}><label style={lblS}>Mensagem (opcional)</label><textarea value={form.mensagem} onChange={e=>setForm({...form,mensagem:e.target.value})} rows="2" placeholder="Deixe uma mensagem..." style={{...inpS,resize:"vertical"}}/></div>
         {erro&&<div style={{background:"rgba(224,90,106,0.1)",border:"1px solid rgba(224,90,106,0.3)",borderRadius:"7px",padding:"8px 10px",color:PINK,marginBottom:"10px",fontSize:"11px"}}>{erro}</div>}
         <button type="submit" disabled={submitting} style={{width:"100%",padding:"12px",borderRadius:"9px",border:"none",background:form.confirmado?"linear-gradient(135deg,#e05a6a,#f07a8a)":"linear-gradient(135deg,#667eea,#764ba2)",color:"white",fontSize:"13px",fontWeight:800,cursor:submitting?"wait":"pointer",opacity:submitting?0.7:1}}>
