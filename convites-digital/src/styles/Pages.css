@@ -213,3 +213,37 @@
     width: 100%;
   }
 }
+
+/* ════════════════════════════════
+   RESPONSIVIDADE GLOBAL — PAGES
+════════════════════════════════ */
+
+/* Títulos */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .form-container {
+    padding: 24px 18px;
+    border-radius: 12px;
+  }
+  .form-group {
+    margin-bottom: 18px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 20px;
+  }
+  .form-container {
+    padding: 18px 14px;
+  }
+}

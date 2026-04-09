@@ -122,3 +122,32 @@
   color: white;
 }
 
+
+/* ════════════════════════════════
+   RESPONSIVIDADE — CONVITES
+════════════════════════════════ */
+@media (max-width: 768px) {
+  .convites-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .convite-card {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+  .convite-card:hover {
+    transform: none;
+  }
+  .convite-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .convite-card p {
+    font-size: 13px;
+  }
+  .convite-info {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
