@@ -21,7 +21,8 @@ function Navbar() {
   return (
     <nav className="navbar">
       <NavLink to="/" className="navbar-brand" onClick={close}>
-        Convites Digitais
+        <img src="/android-chrome-192x192.png" alt="Convites Digitais" style={{ height: "36px", width: "36px", objectFit: "contain" }} />
+        <span>Convites Digitais</span>
       </NavLink>
 
       <button
