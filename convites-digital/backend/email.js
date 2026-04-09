@@ -10,10 +10,15 @@ const sendEmail = async ({ to, subject, html }) => {
     const from = process.env.EMAIL_FROM_NAME || "Convites Digitais";
     const fromEmail = process.env.EMAIL_FROM_ADDRESS || "noreply@convitesdigitais.com";
 
-    const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+    // Suporta tanto xkeysib- (API key) como xsmtpsib- (SMTP key — usa endpoint v2)
+    const isSmtpKey = brevoKey.startsWith("xsmtpsib-");
+    const endpoint = "https://api.brevo.com/v3/smtp/email";
+    const authHeader = isSmtpKey ? { "api-key": brevoKey } : { "api-key": brevoKey };
+
+    const resp = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "api-key": brevoKey,
+        ...authHeader,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -24,7 +29,7 @@ const sendEmail = async ({ to, subject, html }) => {
       }),
     });
     const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(data.message || `Brevo erro ${resp.status}`);
+    if (!resp.ok) throw new Error(data.message || JSON.stringify(data) || `Brevo erro ${resp.status}`);
     return { sucesso: true };
   }
 
