@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-import Registro from "./pages/Registro";
 import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
@@ -9,8 +8,6 @@ import CriarConvite from "./pages/CriarConvite";
 import MeusConvites from "./pages/MeusConvites";
 import DetalhesEvento from "./pages/DetalhesEvento";
 import EditarConvite from "./pages/EditarConvite";
-import EsqueciSenha from "./pages/EsqueciSenha";
-import ResetSenha from "./pages/ResetSenha";
 import ConvitePublico from "./pages/ConvitePublico";
 
 // Sessão apenas dura enquanto o browser está aberto (sessionStorage)
@@ -37,9 +34,9 @@ function App() {
 
         {/* Rotas de autenticação */}
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-        <Route path="/registro" element={<PublicRoute><Registro /></PublicRoute>} />
-        <Route path="/esqueci-senha" element={<PublicRoute><EsqueciSenha /></PublicRoute>} />
-        <Route path="/reset-senha" element={<PublicRoute><ResetSenha /></PublicRoute>} />
+        <Route path="/registro" element={<Navigate to="/login" replace />} />
+        <Route path="/esqueci-senha" element={<Navigate to="/login" replace />} />
+        <Route path="/reset-senha" element={<Navigate to="/login" replace />} />
 
         {/* Rotas protegidas */}
         <Route path="/" element={<PrivateRoute><Navbar /><Home /></PrivateRoute>} />
