@@ -1,28 +1,47 @@
 const fetch = require("node-fetch");
 
-// Envia email via Resend API (HTTP — nao usa SMTP, funciona no Render)
+// Envia email via Brevo API (300 emails/dia gratis, sem restricao de destinatarios)
+// Fallback para Resend se BREVO_API_KEY nao estiver configurada
 const sendEmail = async ({ to, subject, html }) => {
-  const apiKey = process.env.RESEND_API_KEY;
+  const brevoKey = process.env.BREVO_API_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
 
-  if (!apiKey) {
-    console.log("⚠️  RESEND_API_KEY nao configurada. Email nao enviado.");
-    return { sucesso: false, erro: "RESEND_API_KEY nao configurada", isTest: true };
+  if (brevoKey) {
+    const from = process.env.EMAIL_FROM_NAME || "Convites Digitais";
+    const fromEmail = process.env.EMAIL_FROM_ADDRESS || "noreply@convitesdigitais.com";
+
+    const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": brevoKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: from, email: fromEmail },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.message || `Brevo erro ${resp.status}`);
+    return { sucesso: true };
   }
 
-  const from = process.env.EMAIL_FROM || "Convites Digitais <onboarding@resend.dev>";
+  if (resendKey) {
+    const from = process.env.EMAIL_FROM || "Convites Digitais <onboarding@resend.dev>";
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to, subject, html }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.message || `Resend erro ${resp.status}`);
+    return { sucesso: true };
+  }
 
-  const resp = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ from, to, subject, html }),
-  });
-
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.message || `Resend erro ${resp.status}`);
-  return { sucesso: true, id: data.id };
+  console.log("⚠️  Nenhum servico de email configurado.");
+  return { sucesso: false, erro: "Email nao configurado", isTest: true };
 };
 
 const templateConvite = ({ nomeEvento, data, local, mensagem, linkConvite, nomeAnfitriao }) => {
