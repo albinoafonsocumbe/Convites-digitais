@@ -362,11 +362,24 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
     if(tipo==="hero"){
       const partes=evento.nome_evento?evento.nome_evento.split(/[&]/).map(s=>s.trim()).filter(Boolean):[evento.nome_evento];
       const dataHero=evento.data_evento?new Date(evento.data_evento).toLocaleDateString("pt-PT",{day:"2-digit",month:"2-digit",year:"numeric"}).replace(/\//g,".") :"";
+      const nomeExibir = nomeConv ? (relConv ? relConv+" "+nomeConv : nomeConv) : null;
       return(<div key={i} style={{width:"100%",height:"100%",position:"relative",overflow:"hidden"}}>
         {evento.foto_capa?<img src={evento.foto_capa} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",filter:"grayscale(100%) brightness(0.85)"}}/>:<div style={{position:"absolute",inset:0,background:"linear-gradient(160deg,#2a2a3a,#1a1a28)"}}/>}
         <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 60%,rgba(0,0,0,0.5) 100%)"}}/>
         <div style={{position:"absolute",top:0,left:0,right:0,padding:"20px 16px 0",textAlign:"center",animation:"fadeUp 0.8s ease"}}>
-          {partes.length>=2?<h1 style={{fontFamily:"'Playfair Display',serif",color:"white",fontSize:"clamp(28px,6vw,46px)",fontWeight:900,fontStyle:"italic",lineHeight:1.05,margin:0,textShadow:"0 2px 12px rgba(0,0,0,0.6)"}}>{partes[0]} <span style={{fontStyle:"normal",fontWeight:400}}>&amp;</span> {partes[1]}</h1>:<h1 style={{fontFamily:"'Playfair Display',serif",color:"white",fontSize:"clamp(22px,5vw,38px)",fontWeight:900,fontStyle:"italic",lineHeight:1.1,margin:0,textShadow:"0 2px 12px rgba(0,0,0,0.6)"}}>{evento.nome_evento}</h1>}
+          {nomeExibir ? (
+            <>
+              <p style={{color:"rgba(201,169,110,0.9)",fontSize:"10px",fontWeight:700,letterSpacing:"4px",textTransform:"uppercase",margin:"0 0 8px",textShadow:"0 1px 4px rgba(0,0,0,0.6)"}}>Convite para</p>
+              <h1 style={{fontFamily:"'Playfair Display',serif",color:"white",fontSize:"clamp(26px,6vw,44px)",fontWeight:900,fontStyle:"italic",lineHeight:1.05,margin:"0 0 6px",textShadow:"0 2px 12px rgba(0,0,0,0.6)"}}>{nomeExibir}</h1>
+              <p style={{fontFamily:"'Playfair Display',serif",color:"rgba(255,255,255,0.65)",fontSize:"clamp(13px,3vw,20px)",fontStyle:"italic",margin:0,textShadow:"0 1px 6px rgba(0,0,0,0.6)"}}>
+                {partes.length>=2?`${partes[0]} & ${partes[1]}`:evento.nome_evento}
+              </p>
+            </>
+          ) : (
+            partes.length>=2
+              ?<h1 style={{fontFamily:"'Playfair Display',serif",color:"white",fontSize:"clamp(28px,6vw,46px)",fontWeight:900,fontStyle:"italic",lineHeight:1.05,margin:0,textShadow:"0 2px 12px rgba(0,0,0,0.6)"}}>{partes[0]} <span style={{fontStyle:"normal",fontWeight:400}}>&amp;</span> {partes[1]}</h1>
+              :<h1 style={{fontFamily:"'Playfair Display',serif",color:"white",fontSize:"clamp(22px,5vw,38px)",fontWeight:900,fontStyle:"italic",lineHeight:1.1,margin:0,textShadow:"0 2px 12px rgba(0,0,0,0.6)"}}>{evento.nome_evento}</h1>
+          )}
           {dataHero&&<p style={{color:"white",fontSize:"clamp(13px,2.5vw,18px)",fontWeight:300,letterSpacing:"clamp(4px,1vw,8px)",marginTop:"8px",textShadow:"0 1px 6px rgba(0,0,0,0.6)"}}>{dataHero}</p>}
         </div>
         {evento.mensagem&&(<div style={{position:"absolute",bottom:0,left:0,right:0,padding:"0 20px 20px",textAlign:"center"}}><p style={{fontFamily:"'Playfair Display',serif",color:"white",fontSize:"clamp(13px,2.5vw,17px)",fontStyle:"italic",margin:0,textShadow:"0 2px 8px rgba(0,0,0,0.8)",lineHeight:1.4}}>"{evento.mensagem}"</p></div>)}
