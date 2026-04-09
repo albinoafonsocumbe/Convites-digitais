@@ -167,17 +167,24 @@ router.post("/reset-senha", async (req, res, next) => {
 });
 
 // GET /api/auth/google
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 
 // GET /api/auth/google/callback
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:3000"}/login` }),
-  (req, res) => {
-    const token = generateToken(req.user);
-    const user = encodeURIComponent(JSON.stringify({ id: req.user.id, nome: req.user.nome, email: req.user.email }));
-    res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3000"}/auth/callback?token=${token}&user=${user}`);
-  }
-);
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", { session: false }, (err, user) => {
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    if (err || !user) {
+      console.error("Google OAuth erro:", err?.message || "sem utilizador");
+      return res.redirect(`${frontendUrl}/login?erro=auth`);
+    }
+    try {
+      const token = generateToken(user);
+      const userEncoded = encodeURIComponent(JSON.stringify({ id: user.id, nome: user.nome, email: user.email }));
+      res.redirect(`${frontendUrl}/auth/callback?token=${token}&user=${userEncoded}`);
+    } catch (e) {
+      res.redirect(`${frontendUrl}/login?erro=token`);
+    }
+  })(req, res, next);
+});
 
 module.exports = router;
