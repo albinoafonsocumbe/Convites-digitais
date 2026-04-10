@@ -1,3 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard
+Disallow: /criar-convite
+Disallow: /editar-convite
+Disallow: /meus-convites
+
+Sitemap: https://convitesdigitais.vercel.app/sitemap.xml
