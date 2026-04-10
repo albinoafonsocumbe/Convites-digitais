@@ -55,7 +55,7 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === "production", httpOnly: true },
 }));
 app.use(passport.initialize());
-app.use(passport.session());
+// Nao usar passport.session() — usamos JWT, nao sessoes
 
 pool.connect((err, _client, release) => {
   if (err) { console.error("Erro PostgreSQL:", err.message); process.exit(1); }
