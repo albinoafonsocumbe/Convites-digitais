@@ -2,7 +2,7 @@
 const API_HOST = process.env.REACT_APP_API_URL
   || (window.location.hostname === "localhost"
     ? "http://localhost:5000"
-    : `http://${window.location.hostname}:5000`);
+    : `https://${window.location.hostname}:5000`);
 
 const API_URL = `${API_HOST}/api`;
 
