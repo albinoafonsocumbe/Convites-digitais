@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { convitesAPI, uploadAPI } from "../services/api";
+import { getConviteShareUrl } from "../services/shareUrl";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
@@ -103,10 +104,7 @@ function EditarConvite() {
   const updConv = (i, k, v) => { const n = [...convidados]; n[i][k] = v; setConvidados(n); };
 
   const gerarLink = (c) => {
-    const p = new URLSearchParams();
-    if (c.nome) p.set("nome", c.nome);
-    if (c.relacao) p.set("rel", c.relacao);
-    return window.location.origin + "/convite/" + id + "?" + p.toString();
+    return getConviteShareUrl(id, { nome: c.nome, rel: c.relacao });
   };
   const copiar = (l) => { navigator.clipboard.writeText(l); alert("Copiado!"); };
 
@@ -333,8 +331,8 @@ function EditarConvite() {
               <div style={{ background: "#f8f9ff", borderRadius: "12px", padding: "16px", marginBottom: "16px", border: "1px solid #e8ecff" }}>
                 <p style={{ fontSize: "13px", fontWeight: 700, color: "#667eea", marginBottom: "8px" }}>Link geral</p>
                 <div style={{ display: "flex", gap: "10px" }}>
-                  <input readOnly value={window.location.origin + "/convite/" + id} style={{ flex: 1, ...inp, background: "white" }} />
-                  <button type="button" onClick={() => copiar(window.location.origin + "/convite/" + id)} style={{ background: "#667eea", color: "white", border: "none", borderRadius: "8px", padding: "10px 16px", cursor: "pointer", fontWeight: 600 }}>Copiar</button>
+                  <input readOnly value={getConviteShareUrl(id)} style={{ flex: 1, ...inp, background: "white" }} />
+                  <button type="button" onClick={() => copiar(getConviteShareUrl(id))} style={{ background: "#667eea", color: "white", border: "none", borderRadius: "8px", padding: "10px 16px", cursor: "pointer", fontWeight: 600 }}>Copiar</button>
                 </div>
               </div>
               {convValidos.length > 0 && (

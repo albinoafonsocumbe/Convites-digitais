@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { convitesAPI, confirmacoesAPI } from "../services/api";
+import { getConviteShareUrl } from "../services/shareUrl";
 import { QRCodeSVG } from "qrcode.react";
 
 const CSS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap');*{box-sizing:border-box;}body{overflow:hidden;margin:0;}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes rodar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes aparecer{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}input::placeholder,textarea::placeholder{color:rgba(0,0,0,0.3);}input,textarea{font-family:'Inter',sans-serif;}`;
@@ -392,7 +393,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
       return <SlideVideos key={i} videos={videos} renderVideo={renderVideo}/>;
     }
     if(tipo==="qrcode"){
-      const conviteUrl=window.location.origin+window.location.pathname+window.location.search;
+      const conviteUrl = getConviteShareUrl(evento.id);
       return(<div key={i} style={{...sRosa,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"16px",paddingTop:"24px"}}>
         <h2 style={tituloRosa}>Partilhar Convite</h2>{divisor}
         <p style={{color:"#888",fontSize:"12px",textAlign:"center",margin:"0 0 8px",lineHeight:1.5}}>Digitaliza o código para abrir ou partilhar este convite</p>

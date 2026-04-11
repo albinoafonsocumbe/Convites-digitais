@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { convitesAPI, confirmacoesAPI, emailAPI } from "../services/api";
+import { getConviteShareUrl } from "../services/shareUrl";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
@@ -61,7 +62,7 @@ function DetalhesEvento() {
   };
 
   const copiarLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/convite/${id}`);
+    navigator.clipboard.writeText(getConviteShareUrl(id));
     setLinkCopiado(true);
     setTimeout(() => setLinkCopiado(false), 2000);
   };
@@ -76,7 +77,7 @@ function DetalhesEvento() {
   if (!evento) return <div className="page-container"><div className="alert alert-error">Evento não encontrado</div></div>;
 
   const totalPessoas = parseInt(estatisticas?.confirmados || 0) + parseInt(estatisticas?.total_acompanhantes || 0);
-  const linkConvite = `${window.location.origin}/convite/${id}`;
+  const linkConvite = getConviteShareUrl(id);
 
   return (
     <div className="page-container" style={{ maxWidth: "860px", margin: "0 auto" }}>

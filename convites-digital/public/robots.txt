@@ -1,9 +1,13 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Allow: /convite/
 Disallow: /dashboard
 Disallow: /criar-convite
 Disallow: /editar-convite
 Disallow: /meus-convites
 
+# Sitemap dinâmico (gerado pelo backend com todos os convites)
+Sitemap: https://convites-digitais-backend-6v3x.onrender.com/sitemap.xml
+
+# Sitemap estático (fallback)
 Sitemap: https://convitesdigitais.vercel.app/sitemap.xml
