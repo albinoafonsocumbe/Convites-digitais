@@ -7,42 +7,37 @@ const API_URL = (process.env.REACT_APP_API_URL || (window.location.hostname === 
 
 function EsqueciSenha() {
   const navigate = useNavigate();
-  // passo: "telefone" | "codigo" | "nova-senha"
-  const [passo, setPasso] = useState("telefone");
-  const [telefone, setTelefone] = useState("");
+  const [passo, setPasso] = useState("email"); // "email" | "codigo" | "nova-senha"
+  const [email, setEmail] = useState("");
   const [codigo, setCodigo] = useState("");
   const [resetToken, setResetToken] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmar, setConfirmar] = useState("");
-  const [msg, setMsg] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Passo 1 — enviar código SMS
   const enviarCodigo = async (e) => {
     e.preventDefault(); setLoading(true); setErro("");
     try {
       const r = await fetch(`${API_URL}/auth/esqueci-senha`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefone }),
+        body: JSON.stringify({ email }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error);
-      setMsg(data.message);
       setPasso("codigo");
     } catch (err) { setErro(err.message || "Erro ao enviar código."); }
     setLoading(false);
   };
 
-  // Passo 2 — verificar código
   const verificarCodigo = async (e) => {
     e.preventDefault(); setLoading(true); setErro("");
     try {
       const r = await fetch(`${API_URL}/auth/verificar-codigo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefone, codigo }),
+        body: JSON.stringify({ email, codigo }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error);
@@ -52,7 +47,6 @@ function EsqueciSenha() {
     setLoading(false);
   };
 
-  // Passo 3 — nova senha
   const redefinirSenha = async (e) => {
     e.preventDefault(); setErro("");
     if (novaSenha !== confirmar) return setErro("As senhas não coincidem.");
@@ -71,45 +65,41 @@ function EsqueciSenha() {
     setLoading(false);
   };
 
-  const passos = ["telefone", "codigo", "nova-senha"];
+  const passos = ["email", "codigo", "nova-senha"];
   const passoIdx = passos.indexOf(passo);
+  const labels = ["Email", "Código", "Nova Senha"];
 
   return (
     <div className="page-container">
       <div style={{ maxWidth: "420px", margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <h1 className="page-title" style={{ marginBottom: "8px" }}>Recuperar Senha</h1>
-          <p style={{ color: "white", fontSize: "14px", opacity: 0.85 }}>Vamos enviar um código para o teu telemóvel</p>
+          <p style={{ color: "white", fontSize: "14px", opacity: 0.85 }}>Vamos enviar um código para o teu email</p>
         </div>
 
         {/* Indicador de passos */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "24px" }}>
-          {["Telefone", "Código", "Nova Senha"].map((label, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div style={{
-                width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "12px", fontWeight: 700,
-                background: i <= passoIdx ? "#667eea" : "rgba(255,255,255,0.2)",
-                color: "white",
-              }}>{i + 1}</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "24px" }}>
+          {labels.map((label, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700, background: i <= passoIdx ? "#667eea" : "rgba(255,255,255,0.2)", color: "white" }}>{i + 1}</div>
               <span style={{ fontSize: "11px", color: i <= passoIdx ? "white" : "rgba(255,255,255,0.5)", fontWeight: i === passoIdx ? 700 : 400 }}>{label}</span>
-              {i < 2 && <div style={{ width: "20px", height: "1px", background: i < passoIdx ? "#667eea" : "rgba(255,255,255,0.2)" }} />}
+              {i < 2 && <div style={{ width: "16px", height: "1px", background: i < passoIdx ? "#667eea" : "rgba(255,255,255,0.2)" }} />}
             </div>
           ))}
         </div>
 
         <div className="form-container">
-          {/* Passo 1 */}
-          {passo === "telefone" && (
+
+          {/* Passo 1 — Email */}
+          {passo === "email" && (
             <form onSubmit={enviarCodigo}>
               <div className="form-group">
-                <label>Número de Telefone</label>
-                <input type="tel" value={telefone} onChange={e => setTelefone(e.target.value)} required placeholder="+244 9XX XXX XXX" autoComplete="tel" />
-                <small style={{ color: "#999", fontSize: "11px" }}>O número que registaste na conta</small>
+                <label>Email da conta</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="seu@email.com" autoComplete="email" />
               </div>
               {erro && <div className="alert alert-error" style={{ marginBottom: "14px" }}>{erro}</div>}
               <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: "100%", padding: "12px", fontSize: "15px" }}>
-                {loading ? "A enviar..." : "Enviar Código SMS"}
+                {loading ? "A enviar..." : "Enviar Código"}
               </button>
               <div style={{ textAlign: "center", marginTop: "14px" }}>
                 <Link to="/login" style={{ color: "#667eea", fontSize: "13px" }}>Voltar ao login</Link>
@@ -117,26 +107,28 @@ function EsqueciSenha() {
             </form>
           )}
 
-          {/* Passo 2 */}
+          {/* Passo 2 — Código */}
           {passo === "codigo" && (
             <form onSubmit={verificarCodigo}>
-              {msg && <div className="alert alert-success" style={{ marginBottom: "16px" }}>{msg}</div>}
+              <div style={{ background: "#f0f4ff", borderRadius: "10px", padding: "14px 16px", marginBottom: "20px", fontSize: "13px", color: "#555" }}>
+                Enviámos um código de 6 dígitos para <strong>{email}</strong>. Verifica a caixa de entrada (e spam).
+              </div>
               <div className="form-group">
-                <label>Código de Verificação</label>
+                <label>Código de verificação</label>
                 <input
-                  type="text" value={codigo} onChange={e => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  type="text" value={codigo}
+                  onChange={e => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   required placeholder="000000" maxLength={6}
-                  style={{ fontSize: "24px", letterSpacing: "8px", textAlign: "center" }}
+                  style={{ fontSize: "28px", letterSpacing: "10px", textAlign: "center" }}
                   autoComplete="one-time-code"
                 />
-                <small style={{ color: "#999", fontSize: "11px" }}>Código de 6 dígitos enviado para {telefone}</small>
               </div>
               {erro && <div className="alert alert-error" style={{ marginBottom: "14px" }}>{erro}</div>}
               <button type="submit" className="btn btn-primary" disabled={loading || codigo.length < 6} style={{ width: "100%", padding: "12px", fontSize: "15px" }}>
                 {loading ? "A verificar..." : "Verificar Código"}
               </button>
               <div style={{ textAlign: "center", marginTop: "14px" }}>
-                <button type="button" onClick={() => { setPasso("telefone"); setErro(""); setCodigo(""); }}
+                <button type="button" onClick={() => { setPasso("email"); setErro(""); setCodigo(""); }}
                   style={{ background: "none", border: "none", color: "#667eea", fontSize: "13px", cursor: "pointer" }}>
                   Reenviar código
                 </button>
@@ -144,7 +136,7 @@ function EsqueciSenha() {
             </form>
           )}
 
-          {/* Passo 3 */}
+          {/* Passo 3 — Nova senha */}
           {passo === "nova-senha" && (
             <form onSubmit={redefinirSenha}>
               <div className="form-group">
@@ -161,6 +153,7 @@ function EsqueciSenha() {
               </button>
             </form>
           )}
+
         </div>
       </div>
     </div>
