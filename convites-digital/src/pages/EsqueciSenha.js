@@ -1,22 +1,17 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
 const API_URL = (process.env.REACT_APP_API_URL || (window.location.hostname === "localhost" ? "http://localhost:5000" : `https://${window.location.hostname}`)) + "/api";
 
 function EsqueciSenha() {
-  const navigate = useNavigate();
-  const [passo, setPasso] = useState("email"); // "email" | "codigo" | "nova-senha"
   const [email, setEmail] = useState("");
-  const [codigo, setCodigo] = useState("");
-  const [resetToken, setResetToken] = useState("");
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmar, setConfirmar] = useState("");
+  const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const enviarCodigo = async (e) => {
+  const submit = async (e) => {
     e.preventDefault(); setLoading(true); setErro("");
     try {
       const r = await fetch(`${API_URL}/auth/esqueci-senha`, {
@@ -26,134 +21,60 @@ function EsqueciSenha() {
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error);
-      setPasso("codigo");
-    } catch (err) { setErro(err.message || "Erro ao enviar código."); }
+      setEnviado(true);
+    } catch (err) { setErro(err.message || "Erro ao enviar email."); }
     setLoading(false);
   };
-
-  const verificarCodigo = async (e) => {
-    e.preventDefault(); setLoading(true); setErro("");
-    try {
-      const r = await fetch(`${API_URL}/auth/verificar-codigo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, codigo }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error);
-      setResetToken(data.token);
-      setPasso("nova-senha");
-    } catch (err) { setErro(err.message || "Código inválido."); }
-    setLoading(false);
-  };
-
-  const redefinirSenha = async (e) => {
-    e.preventDefault(); setErro("");
-    if (novaSenha !== confirmar) return setErro("As senhas não coincidem.");
-    if (novaSenha.length < 6) return setErro("Mínimo 6 caracteres.");
-    setLoading(true);
-    try {
-      const r = await fetch(`${API_URL}/auth/reset-senha`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resetToken, novaSenha }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error);
-      navigate("/login", { state: { mensagem: "Senha redefinida com sucesso! Faz login." } });
-    } catch (err) { setErro(err.message || "Erro ao redefinir senha."); }
-    setLoading(false);
-  };
-
-  const passos = ["email", "codigo", "nova-senha"];
-  const passoIdx = passos.indexOf(passo);
-  const labels = ["Email", "Código", "Nova Senha"];
 
   return (
     <div className="page-container">
       <div style={{ maxWidth: "420px", margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <h1 className="page-title" style={{ marginBottom: "8px" }}>Recuperar Senha</h1>
-          <p style={{ color: "white", fontSize: "14px", opacity: 0.85 }}>Vamos enviar um código para o teu email</p>
-        </div>
-
-        {/* Indicador de passos */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "24px" }}>
-          {labels.map((label, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <div style={{ width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700, background: i <= passoIdx ? "#667eea" : "rgba(255,255,255,0.2)", color: "white" }}>{i + 1}</div>
-              <span style={{ fontSize: "11px", color: i <= passoIdx ? "white" : "rgba(255,255,255,0.5)", fontWeight: i === passoIdx ? 700 : 400 }}>{label}</span>
-              {i < 2 && <div style={{ width: "16px", height: "1px", background: i < passoIdx ? "#667eea" : "rgba(255,255,255,0.2)" }} />}
-            </div>
-          ))}
+          <p style={{ color: "white", fontSize: "14px", opacity: 0.85 }}>
+            Envia-te um link para redefinir a senha
+          </p>
         </div>
 
         <div className="form-container">
-
-          {/* Passo 1 — Email */}
-          {passo === "email" && (
-            <form onSubmit={enviarCodigo}>
+          {enviado ? (
+            <div style={{ textAlign: "center" }}>
+              {/* Ícone de email */}
+              <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "#f0f4ff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#667eea" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <h3 style={{ color: "#333", marginBottom: "10px", fontSize: "18px" }}>Email enviado</h3>
+              <p style={{ color: "#666", fontSize: "14px", lineHeight: 1.6, marginBottom: "8px" }}>
+                Enviámos um link de recuperação para <strong>{email}</strong>.
+              </p>
+              <p style={{ color: "#999", fontSize: "13px", marginBottom: "24px" }}>
+                Verifica a caixa de entrada e a pasta de spam. O link expira em 1 hora.
+              </p>
+              <Link to="/login" style={{ color: "#667eea", fontSize: "14px", fontWeight: 600 }}>
+                Voltar ao login
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={submit}>
               <div className="form-group">
                 <label>Email da conta</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="seu@email.com" autoComplete="email" />
+                <input
+                  type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  required placeholder="seu@email.com" autoComplete="email"
+                />
               </div>
-              {erro && <div className="alert alert-error" style={{ marginBottom: "14px" }}>{erro}</div>}
+              {erro && <div className="alert alert-error" style={{ marginBottom: "16px" }}>{erro}</div>}
               <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: "100%", padding: "12px", fontSize: "15px" }}>
-                {loading ? "A enviar..." : "Enviar Código"}
+                {loading ? "A enviar..." : "Enviar link de recuperação"}
               </button>
-              <div style={{ textAlign: "center", marginTop: "14px" }}>
+              <div style={{ textAlign: "center", marginTop: "16px" }}>
                 <Link to="/login" style={{ color: "#667eea", fontSize: "13px" }}>Voltar ao login</Link>
               </div>
             </form>
           )}
-
-          {/* Passo 2 — Código */}
-          {passo === "codigo" && (
-            <form onSubmit={verificarCodigo}>
-              <div style={{ background: "#f0f4ff", borderRadius: "10px", padding: "14px 16px", marginBottom: "20px", fontSize: "13px", color: "#555" }}>
-                Enviámos um código de 6 dígitos para <strong>{email}</strong>. Verifica a caixa de entrada (e spam).
-              </div>
-              <div className="form-group">
-                <label>Código de verificação</label>
-                <input
-                  type="text" value={codigo}
-                  onChange={e => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  required placeholder="000000" maxLength={6}
-                  style={{ fontSize: "28px", letterSpacing: "10px", textAlign: "center" }}
-                  autoComplete="one-time-code"
-                />
-              </div>
-              {erro && <div className="alert alert-error" style={{ marginBottom: "14px" }}>{erro}</div>}
-              <button type="submit" className="btn btn-primary" disabled={loading || codigo.length < 6} style={{ width: "100%", padding: "12px", fontSize: "15px" }}>
-                {loading ? "A verificar..." : "Verificar Código"}
-              </button>
-              <div style={{ textAlign: "center", marginTop: "14px" }}>
-                <button type="button" onClick={() => { setPasso("email"); setErro(""); setCodigo(""); }}
-                  style={{ background: "none", border: "none", color: "#667eea", fontSize: "13px", cursor: "pointer" }}>
-                  Reenviar código
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Passo 3 — Nova senha */}
-          {passo === "nova-senha" && (
-            <form onSubmit={redefinirSenha}>
-              <div className="form-group">
-                <label>Nova Senha</label>
-                <input type="password" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} required placeholder="Mínimo 6 caracteres" autoComplete="new-password" />
-              </div>
-              <div className="form-group">
-                <label>Confirmar Senha</label>
-                <input type="password" value={confirmar} onChange={e => setConfirmar(e.target.value)} required placeholder="Repete a senha" autoComplete="new-password" />
-              </div>
-              {erro && <div className="alert alert-error" style={{ marginBottom: "14px" }}>{erro}</div>}
-              <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: "100%", padding: "12px", fontSize: "15px" }}>
-                {loading ? "A guardar..." : "Guardar Nova Senha"}
-              </button>
-            </form>
-          )}
-
         </div>
       </div>
     </div>

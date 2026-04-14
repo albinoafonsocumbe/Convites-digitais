@@ -94,7 +94,7 @@ router.get("/me", authenticateToken, async (req, res, next) => {
   }
 });
 
-// POST /api/auth/esqueci-senha — envia código de 6 dígitos por email
+// POST /api/auth/esqueci-senha — envia link de reset por email
 router.post("/esqueci-senha", async (req, res, next) => {
   const { email } = req.body;
   if (!email || !emailRegex.test(email))
@@ -108,64 +108,47 @@ router.post("/esqueci-senha", async (req, res, next) => {
 
     // Sempre responder com sucesso para não revelar se o email existe
     if (result.rows.length === 0)
-      return res.json({ message: "Se o email existir, receberás um código de verificação." });
+      return res.json({ message: "Se o email existir, receberás um link de recuperação." });
 
     const user = result.rows[0];
-    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-    const expira = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    const token = crypto.randomBytes(32).toString("hex");
+    const expira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
 
     await pool.query(
-      "UPDATE usuarios SET sms_codigo=$1, sms_codigo_expira=$2 WHERE id=$3",
-      [codigo, expira, user.id]
+      "UPDATE usuarios SET reset_token=$1, reset_token_expira=$2 WHERE id=$3",
+      [token, expira, user.id]
     );
+
+    const frontendUrl = process.env.FRONTEND_URL_PROD || process.env.FRONTEND_URL || "http://localhost:3000";
+    const linkReset = `${frontendUrl}/reset-senha?token=${token}`;
 
     await enviarEmail({
       to: email.trim(),
-      subject: "Código de verificação — Convites Digitais",
+      subject: "Recuperação de senha — Convites Digitais",
       html: `
-        <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:12px;">
-          <h2 style="color:#667eea;margin:0 0 16px;text-align:center;">Recuperar Senha</h2>
-          <p style="color:#555;margin:0 0 8px;">Olá, <strong>${user.nome}</strong>.</p>
-          <p style="color:#555;margin:0 0 24px;">O teu código de verificação é:</p>
-          <div style="text-align:center;margin:24px 0;">
-            <span style="display:inline-block;background:#667eea;color:white;font-size:36px;font-weight:900;letter-spacing:12px;padding:16px 32px;border-radius:12px;">${codigo}</span>
+        <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:0;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:36px;text-align:center;">
+            <h1 style="color:white;margin:0;font-size:24px;font-weight:800;">Convites Digitais</h1>
+            <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;">Recuperação de senha</p>
           </div>
-          <p style="color:#aaa;font-size:13px;text-align:center;margin:0;">Válido por 15 minutos. Se não pediste a recuperação, ignora este email.</p>
+          <div style="padding:36px;">
+            <p style="color:#333;font-size:15px;margin:0 0 8px;">Olá, <strong>${user.nome}</strong>.</p>
+            <p style="color:#666;font-size:14px;margin:0 0 28px;line-height:1.6;">Recebemos um pedido para redefinir a senha da tua conta. Clica no botão abaixo para criar uma nova senha.</p>
+            <div style="text-align:center;margin:0 0 28px;">
+              <a href="${linkReset}" style="display:inline-block;background:#667eea;color:white;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:15px;font-weight:700;">Redefinir Senha</a>
+            </div>
+            <p style="color:#999;font-size:12px;margin:0 0 6px;">Este link expira em <strong>1 hora</strong>.</p>
+            <p style="color:#999;font-size:12px;margin:0;">Se não pediste a recuperação, podes ignorar este email — a tua senha não será alterada.</p>
+          </div>
+          <div style="background:#f8f9ff;padding:16px;text-align:center;border-top:1px solid #eee;">
+            <p style="color:#bbb;font-size:11px;margin:0;">Ou copia este link: <a href="${linkReset}" style="color:#667eea;">${linkReset}</a></p>
+          </div>
         </div>
       `,
     });
 
-    console.log(`📧 Código de recuperação enviado para: ${email}`);
-    res.json({ message: "Se o email existir, receberás um código de verificação." });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// POST /api/auth/verificar-codigo — valida código e devolve token de reset
-router.post("/verificar-codigo", async (req, res, next) => {
-  const { email, codigo } = req.body;
-  if (!email || !codigo)
-    return res.status(400).json({ error: "Email e código são obrigatórios" });
-
-  try {
-    const result = await pool.query(
-      "SELECT id FROM usuarios WHERE email=$1 AND sms_codigo=$2 AND sms_codigo_expira > NOW()",
-      [email.toLowerCase().trim(), codigo.trim()]
-    );
-
-    if (result.rows.length === 0)
-      return res.status(400).json({ error: "Código inválido ou expirado." });
-
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const expira = new Date(Date.now() + 15 * 60 * 1000);
-
-    await pool.query(
-      "UPDATE usuarios SET reset_token=$1, reset_token_expira=$2, sms_codigo=NULL, sms_codigo_expira=NULL WHERE id=$3",
-      [resetToken, expira, result.rows[0].id]
-    );
-
-    res.json({ token: resetToken });
+    console.log(`📧 Link de recuperação enviado para: ${email}`);
+    res.json({ message: "Se o email existir, receberás um link de recuperação." });
   } catch (err) {
     next(err);
   }
