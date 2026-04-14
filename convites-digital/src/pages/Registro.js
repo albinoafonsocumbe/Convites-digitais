@@ -6,53 +6,32 @@ import "../styles/Pages.css";
 
 function Registro() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ nome: "", email: "", senha: "", confirmarSenha: "" });
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", senha: "", confirmarSenha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErro("");
-  };
+  const ch = (e) => { setForm({ ...form, [e.target.name]: e.target.value }); setErro(""); };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErro("");
+    e.preventDefault(); setLoading(true); setErro("");
 
-    if (formData.senha !== formData.confirmarSenha) {
-      setErro("As senhas não coincidem");
-      setLoading(false);
-      return;
+    if (form.senha !== form.confirmarSenha) {
+      setErro("As senhas não coincidem"); setLoading(false); return;
     }
-
-    if (formData.senha.length < 6) {
-      setErro("A senha deve ter no mínimo 6 caracteres");
-      setLoading(false);
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErro("Por favor, insira um email válido");
-      setLoading(false);
-      return;
+    if (form.senha.length < 6) {
+      setErro("A senha deve ter no mínimo 6 caracteres"); setLoading(false); return;
     }
 
     try {
       await authAPI.registro({
-        nome: formData.nome,
-        email: formData.email,
-        senha: formData.senha,
+        nome: form.nome,
+        email: form.email,
+        senha: form.senha,
+        telefone: form.telefone,
       });
-      // Nao entrar automaticamente — redirecionar para login por seguranca
-      navigate("/login", { state: { mensagem: "Conta criada com sucesso! Faz login para continuar.", email: formData.email } });
+      navigate("/login", { state: { mensagem: "Conta criada com sucesso! Faz login para continuar.", email: form.email } });
     } catch (error) {
-      if (error.message.includes("NetworkError") || error.message.includes("Failed to fetch")) {
-        setErro("Não foi possível conectar ao servidor.");
-      } else {
-        setErro(error.message || "Erro ao criar conta. Tente novamente.");
-      }
+      setErro(error.message || "Erro ao criar conta. Tente novamente.");
       setLoading(false);
     }
   };
@@ -60,89 +39,54 @@ function Registro() {
   return (
     <div className="page-container">
       <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <h1 className="page-title" style={{ marginBottom: "10px" }}>Criar Conta</h1>
-          <p style={{ color: "white", fontSize: "18px", opacity: 0.9 }}>
-            Comece a criar seus convites digitais agora
-          </p>
+        <div style={{ textAlign: "center", marginBottom: "28px" }}>
+          <h1 className="page-title" style={{ marginBottom: "8px" }}>Criar Conta</h1>
+          <p style={{ color: "white", fontSize: "15px", opacity: 0.9 }}>Começa a criar os teus convites digitais</p>
         </div>
 
         <div className="form-container">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Nome Completo</label>
-              <input
-                type="text"
-                name="nome"
-                value={formData.nome}
-                onChange={handleChange}
-                required
-                placeholder="Seu nome completo"
-                autoComplete="name"
-              />
+              <input type="text" name="nome" value={form.nome} onChange={ch} required placeholder="O teu nome completo" autoComplete="name" />
             </div>
 
             <div className="form-group">
               <label>Email</label>
+              <input type="email" name="email" value={form.email} onChange={ch} required placeholder="seu@email.com" autoComplete="email" />
+            </div>
+
+            <div className="form-group">
+              <label>Telefone <span style={{ color: "#f5576c" }}>*</span></label>
               <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="seu@email.com"
-                autoComplete="email"
+                type="tel" name="telefone" value={form.telefone} onChange={ch} required
+                placeholder="+244 9XX XXX XXX"
+                autoComplete="tel"
               />
+              <small style={{ color: "#999", fontSize: "11px" }}>Usado para recuperação de senha. Ex: +244912345678</small>
             </div>
 
             <div className="form-group">
               <label>Senha</label>
-              <input
-                type="password"
-                name="senha"
-                value={formData.senha}
-                onChange={handleChange}
-                required
-                placeholder="Mínimo 6 caracteres"
-                autoComplete="new-password"
-                minLength="6"
-              />
+              <input type="password" name="senha" value={form.senha} onChange={ch} required placeholder="Mínimo 6 caracteres" autoComplete="new-password" minLength="6" />
             </div>
 
             <div className="form-group">
               <label>Confirmar Senha</label>
-              <input
-                type="password"
-                name="confirmarSenha"
-                value={formData.confirmarSenha}
-                onChange={handleChange}
-                required
-                placeholder="Digite a senha novamente"
-                autoComplete="new-password"
-                minLength="6"
-              />
+              <input type="password" name="confirmarSenha" value={form.confirmarSenha} onChange={ch} required placeholder="Repete a senha" autoComplete="new-password" minLength="6" />
             </div>
 
-            {erro && (
-              <div className="alert alert-error" style={{ marginBottom: "20px" }}>
-                {erro}
-              </div>
-            )}
+            {erro && <div className="alert alert-error" style={{ marginBottom: "16px" }}>{erro}</div>}
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-              style={{ width: "100%", fontSize: "18px", padding: "15px" }}
-            >
-              {loading ? "Criando conta..." : "Criar Conta"}
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: "100%", fontSize: "16px", padding: "13px" }}>
+              {loading ? "A criar conta..." : "Criar Conta"}
             </button>
           </form>
 
-          <div style={{ textAlign: "center", marginTop: "25px", paddingTop: "25px", borderTop: "1px solid #e0e0e0" }}>
-            <p style={{ color: "#666", marginBottom: "10px" }}>Já tem uma conta?</p>
+          <div style={{ textAlign: "center", marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #eee" }}>
+            <p style={{ color: "#888", fontSize: "13px", marginBottom: "10px" }}>Já tens conta?</p>
             <Link to="/login">
-              <button className="btn" style={{ background: "transparent", border: "2px solid #667eea", color: "#667eea" }}>
+              <button className="btn" style={{ background: "transparent", border: "1.5px solid #667eea", color: "#667eea", padding: "9px 24px", fontSize: "14px" }}>
                 Fazer Login
               </button>
             </Link>
