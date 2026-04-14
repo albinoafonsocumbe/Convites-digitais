@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
-const API_URL = (process.env.REACT_APP_API_URL || (window.location.hostname === "localhost" ? "http://localhost:5000" : `http://${window.location.hostname}:5000`)) + "/api";
+const API_URL = (process.env.REACT_APP_API_URL || (window.location.hostname === "localhost" ? "http://localhost:5000" : "https://convites-digitais-backend-6v3x.onrender.com")) + "/api";
 
 function ResetSenha() {
   const navigate = useNavigate();

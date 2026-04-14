@@ -4,7 +4,7 @@ import { authAPI } from "../services/api";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
-const API_HOST = process.env.REACT_APP_API_URL || (window.location.hostname === "localhost" ? "http://localhost:5000" : `https://${window.location.hostname}`);
+const API_HOST = process.env.REACT_APP_API_URL || (window.location.hostname === "localhost" ? "http://localhost:5000" : "https://convites-digitais-backend-6v3x.onrender.com");
 
 function Login() {
   const navigate = useNavigate();
