@@ -1,5 +1,6 @@
 {
   "rootDirectory": "convites-digital",
+  "framework": "create-react-app",
   "buildCommand": "npm install && npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install",
