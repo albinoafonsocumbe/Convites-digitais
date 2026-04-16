@@ -6,7 +6,7 @@ import "../styles/Pages.css";
 
 function Registro() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", senha: "", confirmarSenha: "" });
+  const [form, setForm] = useState({ nome: "", email: "", senha: "", confirmarSenha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +27,6 @@ function Registro() {
         nome: form.nome,
         email: form.email,
         senha: form.senha,
-        telefone: form.telefone,
       });
       navigate("/login", { state: { mensagem: "Conta criada com sucesso! Faz login para continuar.", email: form.email } });
     } catch (error) {
@@ -54,16 +53,6 @@ function Registro() {
             <div className="form-group">
               <label>Email</label>
               <input type="email" name="email" value={form.email} onChange={ch} required placeholder="seu@email.com" autoComplete="email" />
-            </div>
-
-            <div className="form-group">
-              <label>Telefone <span style={{ color: "#f5576c" }}>*</span></label>
-              <input
-                type="tel" name="telefone" value={form.telefone} onChange={ch} required
-                placeholder="+244 9XX XXX XXX"
-                autoComplete="tel"
-              />
-              <small style={{ color: "#999", fontSize: "11px" }}>Usado para recuperação de senha. Ex: +244912345678</small>
             </div>
 
             <div className="form-group">

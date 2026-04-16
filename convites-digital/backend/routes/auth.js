@@ -11,20 +11,15 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // POST /api/auth/registro
 router.post("/registro", async (req, res, next) => {
-  const { nome, email, senha, telefone } = req.body;
+  const { nome, email, senha } = req.body;
 
-  if (!nome || !email || !senha || !telefone)
-    return res.status(400).json({ error: "Nome, email, senha e telefone são obrigatórios" });
+  if (!nome || !email || !senha)
+    return res.status(400).json({ error: "Nome, email e senha são obrigatórios" });
 
   if (!emailRegex.test(email))
     return res.status(400).json({ error: "Email inválido" });
 
   if (senha.length < 6)
-    return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
-
-  const telLimpo = telefone.replace(/\s/g, "");
-  if (!/^\+?\d{7,15}$/.test(telLimpo))
-    return res.status(400).json({ error: "Número de telefone inválido" });
 
   try {
     const existe = await pool.query("SELECT id FROM usuarios WHERE email = $1", [email.toLowerCase().trim()]);
@@ -33,8 +28,8 @@ router.post("/registro", async (req, res, next) => {
 
     const hash = await bcrypt.hash(senha, 10);
     const result = await pool.query(
-      "INSERT INTO usuarios (nome, email, senha, telefone, criado_em) VALUES ($1,$2,$3,$4,NOW()) RETURNING id, nome, email, telefone",
-      [nome.trim(), email.toLowerCase().trim(), hash, telLimpo]
+      "INSERT INTO usuarios (nome, email, senha, criado_em) VALUES ($1,$2,$3,NOW()) RETURNING id, nome, email",
+      [nome.trim(), email.toLowerCase().trim(), hash]
     );
 
     const user = result.rows[0];
