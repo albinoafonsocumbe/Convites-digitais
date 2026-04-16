@@ -21,7 +21,7 @@ function Login() {
       const r = await authAPI.login(form);
       sessionStorage.setItem("token", r.token);
       sessionStorage.setItem("user", JSON.stringify(r.user));
-      navigate("/");
+      navigate("/home");
     } catch (err) {
       setErro(err.message || "Email ou senha incorrectos.");
       setLoading(false);
