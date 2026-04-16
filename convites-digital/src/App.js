@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import AuthCallback from "./pages/AuthCallback";
 import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import CriarConvite from "./pages/CriarConvite";
 import MeusConvites from "./pages/MeusConvites";
@@ -13,8 +14,6 @@ import EsqueciSenha from "./pages/EsqueciSenha";
 import ResetSenha from "./pages/ResetSenha";
 import ConvitePublico from "./pages/ConvitePublico";
 
-// Sessão apenas dura enquanto o browser está aberto (sessionStorage)
-// Ao fechar e abrir o browser, sempre pede login novamente
 function PrivateRoute({ children }) {
   const token = sessionStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
@@ -22,14 +21,17 @@ function PrivateRoute({ children }) {
 
 function PublicRoute({ children }) {
   const token = sessionStorage.getItem("token");
-  return token ? <Navigate to="/" replace /> : children;
+  return token ? <Navigate to="/home" replace /> : children;
 }
 
 function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
-        {/* Rota pública de convite (sem autenticação) */}
+        {/* Landing page pública — indexada pelo Google */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Rota pública de convite */}
         <Route path="/convite/:id" element={<ConvitePublico />} />
 
         {/* Callback OAuth */}
@@ -42,14 +44,13 @@ function App() {
         <Route path="/reset-senha" element={<PublicRoute><ResetSenha /></PublicRoute>} />
 
         {/* Rotas protegidas */}
-        <Route path="/" element={<PrivateRoute><Navbar /><Home /></PrivateRoute>} />
+        <Route path="/home" element={<PrivateRoute><Navbar /><Home /></PrivateRoute>} />
         <Route path="/dashboard" element={<PrivateRoute><Navbar /><Dashboard /></PrivateRoute>} />
         <Route path="/criar-convite" element={<PrivateRoute><Navbar /><CriarConvite /></PrivateRoute>} />
         <Route path="/meus-convites" element={<PrivateRoute><Navbar /><MeusConvites /></PrivateRoute>} />
         <Route path="/evento/:id" element={<PrivateRoute><Navbar /><DetalhesEvento /></PrivateRoute>} />
         <Route path="/editar/:id" element={<PrivateRoute><Navbar /><EditarConvite /></PrivateRoute>} />
 
-        {/* Qualquer rota desconhecida vai para login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

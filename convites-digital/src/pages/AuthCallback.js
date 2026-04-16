@@ -17,7 +17,7 @@ function AuthCallback() {
         localStorage.setItem("user", JSON.stringify(user));
         sessionStorage.setItem("token", token);
         sessionStorage.setItem("user", JSON.stringify(user));
-        navigate("/");
+        navigate("/home");
       } catch {
         navigate("/login");
       }
