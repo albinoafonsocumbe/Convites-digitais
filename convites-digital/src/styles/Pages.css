@@ -30,7 +30,7 @@
   display: block;
   margin-bottom: 10px;
   font-weight: 600;
-  color: #333;
+  color: #2d2d4e !important;
   font-size: 15px;
 }
 
@@ -44,7 +44,8 @@
   font-size: 15px;
   font-family: inherit;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: white !important;
+  color: #1a1a2e !important;
 }
 
 .form-group input:focus,
@@ -58,7 +59,7 @@
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #999;
+  color: #999 !important;
 }
 
 .form-group textarea {

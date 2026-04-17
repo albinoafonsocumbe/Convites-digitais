@@ -5,9 +5,10 @@ import { getConviteShareUrl } from "../services/shareUrl";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
-const sec = { background: "white", borderRadius: "14px", padding: "24px", marginBottom: "20px", border: "1px solid #e8ecff", boxShadow: "0 2px 12px rgba(102,126,234,0.08)" };
+const sec = { background: "white", borderRadius: "14px", padding: "24px", marginBottom: "20px", border: "1px solid #dde3ff", boxShadow: "0 2px 12px rgba(102,126,234,0.1)" };
 const tit = { fontSize: "13px", fontWeight: "700", color: "#667eea", marginBottom: "16px", textTransform: "uppercase", letterSpacing: "1px", display: "flex", alignItems: "center", gap: "8px" };
-const inp = { width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1.5px solid #e0e0e0", fontSize: "14px", outline: "none", boxSizing: "border-box", background: "white", color: "#333", fontFamily: "inherit" };
+const inp = { width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1.5px solid #d0d5e8", fontSize: "14px", outline: "none", boxSizing: "border-box", background: "white", color: "#1a1a2e", fontFamily: "inherit" };
+const lbl = { display: "block", marginBottom: "6px", fontWeight: 600, color: "#2d2d4e", fontSize: "14px" };
 const btn2 = { background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "8px 16px", cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "inherit" };
 const btnRem = { background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px", color: "#f5576c", padding: "9px 12px", cursor: "pointer", fontSize: "13px", fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit" };
 
@@ -114,31 +115,31 @@ function CriarConvite() {
               <div style={sec}>
                 <p style={tit}>📋 Informacoes do Evento</p>
                 <div className="form-group">
-                  <label>Titulo *</label>
+                  <label style={lbl}>Titulo *</label>
                   <input style={inp} type="text" name="titulo" value={form.titulo} onChange={ch} required placeholder="Ex: Casamento de Ana & Joao" />
                 </div>
                 <div className="form-group">
-                  <label>Mensagem para os convidados</label>
+                  <label style={lbl}>Mensagem para os convidados</label>
                   <textarea style={{ ...inp, resize: "vertical" }} name="descricao" value={form.descricao} onChange={ch} rows="3" placeholder="Uma mensagem especial..." />
                 </div>
                 <div className="grid-3col">
                   <div className="form-group">
-                    <label>Data *</label>
+                    <label style={lbl}>Data *</label>
                     <input style={inp} type="date" name="data" value={form.data} onChange={ch} required min={new Date().toISOString().split("T")[0]} />
                   </div>
                   <div className="form-group">
-                    <label>Hora</label>
+                    <label style={lbl}>Hora</label>
                     <input style={inp} type="time" name="hora_evento" value={form.hora_evento} onChange={ch} />
                   </div>
                   <div className="form-group">
-                    <label>Local *</label>
+                    <label style={lbl}>Local *</label>
                     <input style={inp} type="text" name="local" value={form.local} onChange={ch} required placeholder="Nome do local" />
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Endereco para Google Maps</label>
+                  <label style={lbl}>Endereco para Google Maps</label>
                   <input style={inp} type="text" name="endereco_maps" value={form.endereco_maps} onChange={ch} placeholder="Ex: Salao Stop, Maputo, Mozambique" />
-                  <small style={{ color: "#999" }}>Sera usado para mostrar o mapa no convite</small>
+                  <small style={{ color: "#666", marginTop: "4px", display: "block" }}>Sera usado para mostrar o mapa no convite</small>
                 </div>
               </div>
 
