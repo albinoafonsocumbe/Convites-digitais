@@ -5,11 +5,11 @@ import { getConviteShareUrl } from "../services/shareUrl";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
-const sec = { background: "#f8f9ff", borderRadius: "12px", padding: "20px", marginBottom: "20px", border: "1px solid #e8ecff" };
-const tit = { fontSize: "14px", fontWeight: "700", color: "#667eea", marginBottom: "14px", textTransform: "uppercase", letterSpacing: "0.4px" };
-const inp = { width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #e0e0e0", fontSize: "14px", outline: "none", boxSizing: "border-box" };
-const btn2 = { background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "8px 16px", cursor: "pointer", fontSize: "13px", fontWeight: 600 };
-const btnRem = { background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px", color: "#f5576c", padding: "9px 12px", cursor: "pointer", fontSize: "13px", fontWeight: 600, whiteSpace: "nowrap" };
+const sec = { background: "white", borderRadius: "14px", padding: "24px", marginBottom: "20px", border: "1px solid #e8ecff", boxShadow: "0 2px 12px rgba(102,126,234,0.08)" };
+const tit = { fontSize: "13px", fontWeight: "700", color: "#667eea", marginBottom: "16px", textTransform: "uppercase", letterSpacing: "1px", display: "flex", alignItems: "center", gap: "8px" };
+const inp = { width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1.5px solid #e0e0e0", fontSize: "14px", outline: "none", boxSizing: "border-box", background: "white", color: "#333", fontFamily: "inherit" };
+const btn2 = { background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "8px 16px", cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "inherit" };
+const btnRem = { background: "#fff0f0", border: "1px solid #ffcdd2", borderRadius: "8px", color: "#f5576c", padding: "9px 12px", cursor: "pointer", fontSize: "13px", fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit" };
 
 function SlotFoto({ url, onUpload, onRemove, index }) {
   const [up, setUp] = useState(false);
@@ -106,13 +106,13 @@ function CriarConvite() {
           <h1 className="page-title">Criar Convite</h1>
           <p style={{ color: "white", opacity: 0.8, fontSize: "15px" }}>Personaliza cada detalhe do teu evento</p>
         </div>
-        <div className="form-card">
+        <div style={{ background: "white", borderRadius: "20px", padding: "32px", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
           {!eventoId ? (
             <form onSubmit={submit}>
 
               {/* INFORMACOES BASICAS */}
               <div style={sec}>
-                <p style={tit}>Informacoes do Evento</p>
+                <p style={tit}>📋 Informacoes do Evento</p>
                 <div className="form-group">
                   <label>Titulo *</label>
                   <input style={inp} type="text" name="titulo" value={form.titulo} onChange={ch} required placeholder="Ex: Casamento de Ana & Joao" />
@@ -144,7 +144,7 @@ function CriarConvite() {
 
               {/* FOTO DE CAPA */}
               <div style={sec}>
-                <p style={tit}>Foto de Capa</p>
+                <p style={tit}>🖼️ Foto de Capa</p>
                 <input ref={capaRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleCapa} />
                 {form.foto_capa ? (
                   <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", maxHeight: "200px" }}>
@@ -153,8 +153,8 @@ function CriarConvite() {
                   </div>
                 ) : (
                   <button type="button" onClick={() => capaRef.current.click()} disabled={upCapa}
-                    style={{ width: "100%", padding: "32px", border: "2px dashed #c5cae9", borderRadius: "12px", background: "#f8f9ff", cursor: upCapa ? "wait" : "pointer", color: "#667eea", fontSize: "15px", fontWeight: 600 }}>
-                    {upCapa ? "A fazer upload..." : "📷 Escolher foto de capa"}
+                    style={{ width: "100%", padding: "32px", border: "2px dashed #c5cae9", borderRadius: "12px", background: "#f8f9ff", cursor: upCapa ? "wait" : "pointer", color: "#667eea", fontSize: "15px", fontWeight: 600, fontFamily: "inherit" }}>
+                    {upCapa ? "⏳ A fazer upload..." : "📷 Escolher foto de capa"}
                   </button>
                 )}
                 <small style={{ color: "#999", marginTop: "8px", display: "block" }}>
@@ -167,7 +167,7 @@ function CriarConvite() {
 
               {/* MUSICA */}
               <div style={sec}>
-                <p style={tit}>Musica de Fundo</p>
+                <p style={tit}>🎵 Musica de Fundo</p>
                 <input ref={musicaRef} type="file" accept="audio/*" style={{ display: "none" }} onChange={handleMusica} />
                 {form.musica_url ? (
                   <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f0f4ff", borderRadius: "10px", padding: "12px 16px" }}>
@@ -190,7 +190,7 @@ function CriarConvite() {
 
               {/* VIDEO */}
               <div style={sec}>
-                <p style={tit}>Videos / Reels</p>
+                <p style={tit}>🎬 Videos / Reels</p>
                 <small style={{ color: "#999", display: "block", marginBottom: "14px" }}>Adiciona até 5 vídeos — serão exibidos num único slide com galeria. Suporta upload ou link YouTube/Vimeo.</small>
                 {form.videos_urls.length > 0 && (
                   <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
@@ -252,7 +252,7 @@ function CriarConvite() {
 
               {/* FOTOS */}
               <div style={sec}>
-                <p style={tit}>Galeria de Fotos</p>
+                <p style={tit}>📸 Galeria de Fotos</p>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "10px" }}>
                   {form.fotos.map((f, i) => (
                     <SlotFoto key={i} url={f} index={i}
@@ -270,7 +270,7 @@ function CriarConvite() {
 
               {/* PROGRAMA */}
               <div style={sec}>
-                <p style={tit}>Programa da Cerimonia</p>
+                <p style={tit}>📅 Programa da Cerimonia</p>
                 <small style={{ color: "#999", display: "block", marginBottom: "16px" }}>Adiciona cada momento do evento com hora, local e responsavel</small>
                 {programa.map((p, i) => (
                   <div key={i} style={{ background: "white", borderRadius: "10px", padding: "14px", marginBottom: "12px", border: "1px solid #e8ecff" }}>
@@ -306,7 +306,7 @@ function CriarConvite() {
 
               {/* REFEICAO */}
               <div style={sec}>
-                <p style={tit}>Refeicao & Bebidas</p>
+                <p style={tit}>🍽️ Refeicao & Bebidas</p>
                 <p style={{ fontSize: "13px", fontWeight: 700, color: "#333", marginBottom: "10px" }}>Pratos</p>
                 {refeicao.pratos.map((p, i) => (
                   <div key={i} className="grid-row-auto">
@@ -329,7 +329,7 @@ function CriarConvite() {
 
               {/* CONVIDADOS */}
               <div style={sec}>
-                <p style={tit}>Lista de Convidados</p>
+                <p style={tit}>👥 Lista de Convidados</p>
                 <small style={{ color: "#999", display: "block", marginBottom: "14px" }}>Gera links personalizados para cada convidado</small>
                 {convidados.map((c, i) => (
                   <div key={i} className="grid-row-auto">

@@ -5,10 +5,10 @@ import { getConviteShareUrl } from "../services/shareUrl";
 import "../styles/global.css";
 import "../styles/Pages.css";
 
-const sec = { background: "#f8f9ff", borderRadius: "12px", padding: "24px", marginBottom: "24px", border: "1px solid #e8ecff" };
-const tit = { fontSize: "15px", fontWeight: "700", color: "#667eea", marginBottom: "16px" };
-const inp = { width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #e0e0e0", fontSize: "14px", outline: "none", boxSizing: "border-box" };
-const btn2 = { background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "8px 16px", cursor: "pointer", fontSize: "13px", fontWeight: 600 };
+const sec = { background: "white", borderRadius: "14px", padding: "24px", marginBottom: "24px", border: "1px solid #e8ecff", boxShadow: "0 2px 12px rgba(102,126,234,0.08)" };
+const tit = { fontSize: "13px", fontWeight: "700", color: "#667eea", marginBottom: "16px", textTransform: "uppercase", letterSpacing: "1px" };
+const inp = { width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1.5px solid #e0e0e0", fontSize: "14px", outline: "none", boxSizing: "border-box", background: "white", color: "#333", fontFamily: "inherit" };
+const btn2 = { background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "8px 16px", cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "inherit" };
 
 function SlotFoto({ url, onUpload, onRemove, index }) {
   const [up, setUp] = useState(false);
