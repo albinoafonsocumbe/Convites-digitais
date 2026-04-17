@@ -30,7 +30,11 @@ function Registro() {
       });
       navigate("/login", { state: { mensagem: "Conta criada com sucesso! Faz login para continuar.", email: form.email } });
     } catch (error) {
-      setErro(error.message || "Erro ao criar conta. Tente novamente.");
+      if (error.message?.includes("Failed to fetch") || error.message?.includes("NetworkError")) {
+        setErro("Servidor a iniciar. Aguarda 30 segundos e tenta novamente.");
+      } else {
+        setErro(error.message || "Erro ao criar conta. Tente novamente.");
+      }
       setLoading(false);
     }
   };

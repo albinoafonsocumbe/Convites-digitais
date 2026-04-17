@@ -23,7 +23,11 @@ function Login() {
       sessionStorage.setItem("user", JSON.stringify(r.user));
       navigate("/home");
     } catch (err) {
-      setErro(err.message || "Email ou senha incorrectos.");
+      if (err.message?.includes("Failed to fetch") || err.message?.includes("NetworkError")) {
+        setErro("Servidor a iniciar. Aguarda 30 segundos e tenta novamente.");
+      } else {
+        setErro(err.message || "Email ou senha incorrectos.");
+      }
       setLoading(false);
     }
   };
