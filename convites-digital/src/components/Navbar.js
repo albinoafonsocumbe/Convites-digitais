@@ -51,6 +51,11 @@ function Navbar() {
             <NavLink to="/meus-convites" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
               Meus Convites
             </NavLink>
+            {user?.role === "admin" && (
+              <NavLink to="/admin" className={({isActive}) => "nav-link" + (isActive ? " active" : "")} onClick={close}>
+                ⚙️ Admin
+              </NavLink>
+            )}
             <div className="navbar-divider"/>
             <div className="navbar-user">
               <span className="navbar-username">{user?.nome?.split(" ")[0]}</span>

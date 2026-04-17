@@ -62,13 +62,16 @@ router.post("/login", async (req, res, next) => {
     if (user.senha === "google_oauth")
       return res.status(401).json({ error: "Esta conta usa login com Google. Usa o botão 'Continuar com Google'." });
 
+    if (user.bloqueado)
+      return res.status(403).json({ error: "Conta bloqueada. Contacta o administrador." });
+
     const valida = await bcrypt.compare(senha, user.senha);
     if (!valida)
       return res.status(401).json({ error: "Email ou senha incorretos" });
 
     const token = generateToken(user);
     console.log("✅ Login:", user.email);
-    res.json({ message: "Login realizado com sucesso", token, user: { id: user.id, nome: user.nome, email: user.email } });
+    res.json({ message: "Login realizado com sucesso", token, user: { id: user.id, nome: user.nome, email: user.email, role: user.role } });
   } catch (err) {
     next(err);
   }

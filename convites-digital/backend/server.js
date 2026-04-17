@@ -10,6 +10,7 @@ const authRoutes = require("./routes/auth");
 const convitesRoutes = require("./routes/convites");
 const confirmacoesRoutes = require("./routes/confirmacoes");
 const uploadRoutes = require("./routes/upload");
+const adminRoutes = require("./routes/admin");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
@@ -69,9 +70,11 @@ async function runMigrations() {
   const migrations = [
     "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token VARCHAR(100)",
     "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS reset_token_expira TIMESTAMP",
-    "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS telefone VARCHAR(20)",
+    "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS telefone VARCHAR(30)",
     "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS sms_codigo VARCHAR(6)",
     "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS sms_codigo_expira TIMESTAMP",
+    "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'",
+    "ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS bloqueado BOOLEAN DEFAULT false",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS videos_urls TEXT[]",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS fotos TEXT[]",
@@ -80,6 +83,7 @@ async function runMigrations() {
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS endereco_maps VARCHAR(500)",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS programa JSONB DEFAULT '[]'",
     "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS refeicao JSONB DEFAULT '{}'",
+    "ALTER TABLE eventos ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()",
   ];
   for (const sql of migrations) {
     try { await pool.query(sql); }
@@ -186,6 +190,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/convites", convitesRoutes);
 app.use("/api/confirmacoes", confirmacoesRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

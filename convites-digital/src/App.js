@@ -13,6 +13,7 @@ import EditarConvite from "./pages/EditarConvite";
 import EsqueciSenha from "./pages/EsqueciSenha";
 import ResetSenha from "./pages/ResetSenha";
 import ConvitePublico from "./pages/ConvitePublico";
+import Admin from "./pages/Admin";
 
 function PrivateRoute({ children }) {
   const token = sessionStorage.getItem("token");
@@ -45,6 +46,7 @@ function App() {
 
         {/* Rotas protegidas */}
         <Route path="/home" element={<PrivateRoute><Navbar /><Home /></PrivateRoute>} />
+        <Route path="/admin" element={<PrivateRoute><Navbar /><Admin /></PrivateRoute>} />
         <Route path="/dashboard" element={<PrivateRoute><Navbar /><Dashboard /></PrivateRoute>} />
         <Route path="/criar-convite" element={<PrivateRoute><Navbar /><CriarConvite /></PrivateRoute>} />
         <Route path="/meus-convites" element={<PrivateRoute><Navbar /><MeusConvites /></PrivateRoute>} />

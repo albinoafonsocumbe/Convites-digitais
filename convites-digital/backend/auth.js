@@ -23,9 +23,9 @@ const authenticateToken = (req, res, next) => {
 // Gerar token JWT
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.email, nome: user.nome },
+    { id: user.id, email: user.email, nome: user.nome, role: user.role || "user" },
     JWT_SECRET,
-    { expiresIn: '7d' } // Token válido por 7 dias
+    { expiresIn: '7d' }
   );
 };
 
