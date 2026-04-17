@@ -41,7 +41,7 @@ function App() {
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/registro" element={<PublicRoute><Registro /></PublicRoute>} />
         <Route path="/esqueci-senha" element={<PublicRoute><EsqueciSenha /></PublicRoute>} />
-        <Route path="/reset-senha" element={<PublicRoute><ResetSenha /></PublicRoute>} />
+        <Route path="/reset-senha" element={<ResetSenha />} />
 
         {/* Rotas protegidas */}
         <Route path="/home" element={<PrivateRoute><Navbar /><Home /></PrivateRoute>} />
