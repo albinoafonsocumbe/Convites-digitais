@@ -10,4 +10,4 @@ Disallow: /meus-convites
 Sitemap: https://convites-digitais-backend-6v3x.onrender.com/sitemap.xml
 
 # Sitemap estático (fallback)
-Sitemap: https://convitesdigitais.vercel.app/sitemap.xml
+Sitemap: https://convites-digitais-six.vercel.app/sitemap.xml
