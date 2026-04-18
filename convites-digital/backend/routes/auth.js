@@ -28,7 +28,7 @@ router.post("/registro", async (req, res, next) => {
 
     const hash = await bcrypt.hash(senha, 10);
     const result = await pool.query(
-      "INSERT INTO usuarios (nome, email, senha, criado_em) VALUES ($1,$2,$3,NOW()) RETURNING id, nome, email",
+      "INSERT INTO usuarios (nome, email, senha, role, criado_em) VALUES ($1,$2,$3,'user',NOW()) RETURNING id, nome, email",
       [nome.trim(), email.toLowerCase().trim(), hash]
     );
 
@@ -62,7 +62,7 @@ router.post("/login", async (req, res, next) => {
     if (user.senha === "google_oauth")
       return res.status(401).json({ error: "Esta conta usa login com Google. Usa o botão 'Continuar com Google'." });
 
-    if (user.bloqueado)
+    if (user.bloqueado === true)
       return res.status(403).json({ error: "Conta bloqueada. Contacta o administrador." });
 
     const valida = await bcrypt.compare(senha, user.senha);
