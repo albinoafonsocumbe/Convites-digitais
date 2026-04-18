@@ -34,7 +34,7 @@ app.use(cors({
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
-const authLimiter   = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
+const authLimiter   = rateLimit({ windowMs: 15 * 60 * 1000, max: 50 });
 
 app.use((req, res, next) => {
   if (req.path.startsWith("/api/upload")) return next();

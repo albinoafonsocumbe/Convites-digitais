@@ -20,8 +20,7 @@ router.post("/registro", async (req, res, next) => {
     return res.status(400).json({ error: "Email inválido" });
 
   if (senha.length < 6)
-
-  try {
+    return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
     const existe = await pool.query("SELECT id FROM usuarios WHERE email = $1", [email.toLowerCase().trim()]);
     if (existe.rows.length > 0)
       return res.status(409).json({ error: "Este email já está cadastrado" });
