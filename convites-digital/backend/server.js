@@ -85,6 +85,15 @@ pool.connect((err, _client, release) => {
 
 app.get("/", (_req, res) => res.json({ message: "API Convites Digitais", version: "2.0.0" }));
 
+// Diagnóstico temporário — verificar colunas da tabela usuarios
+app.get("/diag", async (_req, res) => {
+  try {
+    const cols = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name='usuarios' ORDER BY ordinal_position");
+    const test = await pool.query("SELECT COUNT(*) FROM usuarios");
+    res.json({ colunas: cols.rows.map(r => r.column_name), total: test.rows[0].count });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Meta tags dinamicas para crawlers
 app.get("/convite/:id", async (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL_PROD || "https://convites-digitais-six.vercel.app";
