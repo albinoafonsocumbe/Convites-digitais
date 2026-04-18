@@ -94,6 +94,22 @@ app.get("/diag", async (_req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Teste de registo direto
+app.post("/diag/registro", async (req, res) => {
+  const { nome, email, senha } = req.body;
+  try {
+    const bcrypt = require("bcryptjs");
+    const hash = await bcrypt.hash(senha || "123456", 10);
+    const result = await pool.query(
+      "INSERT INTO usuarios (nome, email, senha, role, criado_em) VALUES ($1,$2,$3,'user',NOW()) RETURNING id, nome, email, role",
+      [nome || "Teste", email || "teste@teste.com", hash]
+    );
+    res.json({ ok: true, user: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message, code: err.code });
+  }
+});
+
 // Meta tags dinamicas para crawlers
 app.get("/convite/:id", async (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL_PROD || "https://convites-digitais-six.vercel.app";
