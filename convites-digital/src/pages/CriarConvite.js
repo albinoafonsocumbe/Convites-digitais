@@ -30,7 +30,7 @@ function SlotFoto({ url, onUpload, onRemove, index }) {
   return (
     <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", aspectRatio: "1", borderRadius: "10px", border: "2px dashed #c5cae9", background: "#f8f9ff", cursor: up ? "wait" : "pointer" }}
       onMouseEnter={e => e.currentTarget.style.borderColor = "#667eea"} onMouseLeave={e => e.currentTarget.style.borderColor = "#c5cae9"}>
-      <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={handle} />
+      <input ref={ref} type="file" accept="image/*,image/heic,image/heif" style={{ display: "none" }} onChange={handle} />
       {up ? <span>⏳</span> : <><span style={{ fontSize: "24px" }}>+</span><span style={{ fontSize: "11px", color: "#999" }}>Foto</span></>}
     </label>
   );
@@ -146,7 +146,7 @@ function CriarConvite() {
               {/* FOTO DE CAPA */}
               <div style={sec}>
                 <p style={tit}>🖼️ Foto de Capa</p>
-                <input ref={capaRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleCapa} />
+                <input ref={capaRef} type="file" accept="image/*,image/heic,image/heif" style={{ display: "none" }} onChange={handleCapa} />
                 {form.foto_capa ? (
                   <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", maxHeight: "200px" }}>
                     <img src={form.foto_capa} alt="capa" style={{ width: "100%", height: "200px", objectFit: "cover" }} />
@@ -169,7 +169,7 @@ function CriarConvite() {
               {/* MUSICA */}
               <div style={sec}>
                 <p style={tit}>🎵 Musica de Fundo</p>
-                <input ref={musicaRef} type="file" accept="audio/*" style={{ display: "none" }} onChange={handleMusica} />
+                <input ref={musicaRef} type="file" accept="audio/*,audio/mp3,audio/mpeg,audio/wav,audio/m4a,audio/aac" style={{ display: "none" }} onChange={handleMusica} />
                 {form.musica_url ? (
                   <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#f0f4ff", borderRadius: "10px", padding: "12px 16px" }}>
                     <audio controls src={form.musica_url} style={{ flex: 1, height: "36px" }} />
@@ -225,7 +225,7 @@ function CriarConvite() {
                     <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
                       <input style={{ ...inp, flex: 1, fontSize: "13px" }} type="url" value={v} onChange={e => { const n = [...form.videos_urls]; n[i] = e.target.value; setForm(p => ({ ...p, videos_urls: n })); }} placeholder="https://youtube.com/... ou https://vimeo.com/..." />
                       <label style={{ background: "#f0f4ff", border: "1px solid #c5cae9", borderRadius: "8px", color: "#667eea", padding: "8px 12px", cursor: upVideos[i] ? "wait" : "pointer", fontSize: "12px", fontWeight: 600, whiteSpace: "nowrap", display: "flex", alignItems: "center" }}>
-                        <input type="file" accept="video/*" style={{ display: "none" }} onChange={async (e) => {
+                        <input type="file" accept="video/*,video/mp4,video/mov,video/avi,video/quicktime" style={{ display: "none" }} onChange={async (e) => {
                           const f = e.target.files[0]; if (!f) return;
                           setUpVideos(prev => { const n = [...prev]; n[i] = true; return n; });
                           setVideoProgress(prev => { const n = [...prev]; n[i] = 0; return n; });
