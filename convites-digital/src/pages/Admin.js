@@ -54,26 +54,38 @@ export default function Admin() {
   useEffect(() => { if (tab === "usuarios") carregarUsuarios(); else carregarEventos(); }, [tab, carregarUsuarios, carregarEventos]);
 
   const bloquear = async (id, bloqueado) => {
-    await fetch(`${API}/admin/usuarios/${id}/bloquear`, { method: "PATCH", headers: getHeaders(), body: JSON.stringify({ bloqueado }) });
-    carregarUsuarios();
+    try {
+      const r = await fetch(`${API}/admin/usuarios/${id}/bloquear`, { method: "PATCH", headers: getHeaders(), body: JSON.stringify({ bloqueado }) });
+      if (!r.ok) { const d = await r.json(); alert(d.error || "Erro ao atualizar"); return; }
+      carregarUsuarios();
+    } catch { alert("Erro de ligação ao servidor"); }
   };
 
   const promoverAdmin = async (id, role) => {
     if (!window.confirm(`Tornar este utilizador ${role === "admin" ? "admin" : "utilizador normal"}?`)) return;
-    await fetch(`${API}/admin/usuarios/${id}/role`, { method: "PATCH", headers: getHeaders(), body: JSON.stringify({ role }) });
-    carregarUsuarios();
+    try {
+      const r = await fetch(`${API}/admin/usuarios/${id}/role`, { method: "PATCH", headers: getHeaders(), body: JSON.stringify({ role }) });
+      if (!r.ok) { const d = await r.json(); alert(d.error || "Erro ao atualizar role"); return; }
+      carregarUsuarios();
+    } catch { alert("Erro de ligação ao servidor"); }
   };
 
   const apagarUsuario = async (id) => {
     if (!window.confirm("Apagar este utilizador e todos os seus eventos?")) return;
-    await fetch(`${API}/admin/usuarios/${id}`, { method: "DELETE", headers: getHeaders() });
-    carregarUsuarios();
+    try {
+      const r = await fetch(`${API}/admin/usuarios/${id}`, { method: "DELETE", headers: getHeaders() });
+      if (!r.ok) { const d = await r.json(); alert(d.error || "Erro ao apagar utilizador"); return; }
+      carregarUsuarios();
+    } catch { alert("Erro de ligação ao servidor"); }
   };
 
   const apagarEvento = async (id) => {
     if (!window.confirm("Apagar este evento?")) return;
-    await fetch(`${API}/admin/eventos/${id}`, { method: "DELETE", headers: getHeaders() });
-    carregarEventos();
+    try {
+      const r = await fetch(`${API}/admin/eventos/${id}`, { method: "DELETE", headers: getHeaders() });
+      if (!r.ok) { const d = await r.json(); alert(d.error || "Erro ao apagar evento"); return; }
+      carregarEventos();
+    } catch { alert("Erro de ligação ao servidor"); }
   };
 
   const verDetalhe = async (id) => {

@@ -35,7 +35,7 @@ router.get("/usuarios", async (req, res, next) => {
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const params = [`%${search}%`, parseInt(limit), offset];
     const result = await pool.query(
-      `SELECT u.id, u.nome, u.email, u.role, u.bloqueado, u.criado_em,
+      `SELECT u.id, u.nome, u.email, u.role, u.bloqueado::boolean AS bloqueado, u.criado_em,
         COUNT(e.id) AS total_eventos
        FROM usuarios u
        LEFT JOIN eventos e ON e.usuario_id = u.id
@@ -92,8 +92,21 @@ router.delete("/usuarios/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
     if (parseInt(id) === req.user.id) return res.status(400).json({ error: "Não podes apagar a tua própria conta" });
-    await pool.query("DELETE FROM usuarios WHERE id=$1", [id]);
-    res.json({ message: "Utilizador apagado" });
+    // Apagar em cascata manualmente (garante compatibilidade com BDs sem CASCADE)
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const eventos = await client.query("SELECT id FROM eventos WHERE usuario_id=$1", [id]);
+      for (const ev of eventos.rows) {
+        await client.query("DELETE FROM confirmacoes WHERE evento_id=$1", [ev.id]);
+      }
+      await client.query("DELETE FROM eventos WHERE usuario_id=$1", [id]);
+      const result = await client.query("DELETE FROM usuarios WHERE id=$1 RETURNING id", [id]);
+      if (result.rowCount === 0) { await client.query("ROLLBACK"); return res.status(404).json({ error: "Utilizador não encontrado" }); }
+      await client.query("COMMIT");
+      res.json({ message: "Utilizador apagado" });
+    } catch (e) { await client.query("ROLLBACK"); throw e; }
+    finally { client.release(); }
   } catch (err) { next(err); }
 });
 
