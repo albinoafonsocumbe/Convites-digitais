@@ -24,7 +24,6 @@ input,textarea{font-family:'Inter',sans-serif;}
 const GOLD = "#c9a046";
 const GOLD_LIGHT = "rgba(201,160,70,0.15)";
 const DARK = "#0d0d0d";
-const DARK2 = "#141414";
 const CREAM = "#faf7f2";
 const CREAM2 = "#f4efe8";
 
