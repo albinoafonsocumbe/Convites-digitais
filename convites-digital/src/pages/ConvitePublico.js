@@ -5,20 +5,23 @@ import { getConviteShareUrl } from "../services/shareUrl";
 import { QRCodeSVG } from "qrcode.react";
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;}
 body{overflow:hidden;margin:0;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes rodar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes aparecer{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-@keyframes floatUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@keyframes brilho{0%,100%{opacity:0.3}50%{opacity:0.9}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-input::placeholder,textarea::placeholder{color:rgba(0,0,0,0.25);}
+@keyframes aparecer{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes brilho{0%,100%{opacity:0.15}50%{opacity:0.8}}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 0 0 rgba(201,160,70,0.0)}50%{box-shadow:0 0 28px 4px rgba(201,160,70,0.18)}}
+@keyframes grain{0%,100%{transform:translate(0,0)}10%{transform:translate(-1%,-2%)}30%{transform:translate(2%,1%)}50%{transform:translate(-1%,2%)}70%{transform:translate(1%,-1%)}90%{transform:translate(-2%,1%)}}
+input::placeholder,textarea::placeholder{color:rgba(0,0,0,0.22);}
 input,textarea{font-family:'Inter',sans-serif;}
-.slide-scroll::-webkit-scrollbar{width:3px;}
+.slide-scroll::-webkit-scrollbar{width:2px;}
 .slide-scroll::-webkit-scrollbar-track{background:transparent;}
-.slide-scroll::-webkit-scrollbar-thumb{background:rgba(201,160,70,0.3);border-radius:2px;}
+.slide-scroll::-webkit-scrollbar-thumb{background:rgba(201,160,70,0.25);border-radius:2px;}
+.gold-btn{transition:all 0.35s cubic-bezier(0.4,0,0.2,1);}
+.gold-btn:hover{background:rgba(201,160,70,0.22)!important;border-color:rgba(201,160,70,0.6)!important;}
 `;
 
 const GOLD = "#c9a046";
@@ -76,19 +79,32 @@ function Envelope({ nome, relacao, nomeEvento, dataEvento, horaEvento, localEven
   const partes = nomeEvento ? nomeEvento.split(/[&]/).map(s => s.trim()).filter(Boolean) : [nomeEvento];
   const dataNum = dataEvento ? new Date(dataEvento).toLocaleDateString("pt-PT", { day: "2-digit", month: "long", year: "numeric" }) : "";
   return (
-    <div style={{minHeight:"100vh",background:DARK,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif",overflow:"hidden",position:"relative"}}>
+    <div style={{minHeight:"100vh",background:"#080808",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif",overflow:"hidden",position:"relative"}}>
       <style>{CSS+`
-        .env-btn:hover .env-inner{transform:scale(1.05)!important}
+        .env-btn:hover .env-inner{transform:scale(1.07)!important;box-shadow:0 0 40px rgba(201,160,70,0.25)!important;}
         @keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes line-in{from{width:0;opacity:0}to{width:100%;opacity:1}}
       `}</style>
-      {/* Fundo: padrão discreto */}
-      <div style={{position:"absolute",inset:0,backgroundImage:`radial-gradient(circle at 20% 20%, rgba(201,160,70,0.04) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(201,160,70,0.04) 0%, transparent 50%)`}}/>
-      {/* Particulas */}
-      {[...Array(14)].map((_,i)=>(
-        <div key={i} style={{position:"absolute",width:i%4===0?"2px":"1px",height:i%4===0?"2px":"1px",borderRadius:"50%",background:`rgba(201,160,70,${0.2+i*0.04})`,top:(8+i*6)+"%",left:(4+i*7)+"%",animation:`brilho ${1.8+i*0.25}s ease-in-out infinite`,animationDelay:i*0.18+"s"}}/>
+      {/* Fundo gradiente rico */}
+      <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,160,70,0.07) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 50% 100%, rgba(201,160,70,0.04) 0%, transparent 70%)"}}/>
+      {/* Linhas decorativas de fundo */}
+      <div style={{position:"absolute",inset:0,overflow:"hidden",pointerEvents:"none"}}>
+        <div style={{position:"absolute",top:"12%",left:0,right:0,height:"1px",background:"linear-gradient(to right,transparent,rgba(201,160,70,0.06),transparent)"}}/>
+        <div style={{position:"absolute",bottom:"12%",left:0,right:0,height:"1px",background:"linear-gradient(to right,transparent,rgba(201,160,70,0.06),transparent)"}}/>
+        <div style={{position:"absolute",top:0,bottom:0,left:"8%",width:"1px",background:"linear-gradient(to bottom,transparent,rgba(201,160,70,0.04),transparent)"}}/>
+        <div style={{position:"absolute",top:0,bottom:0,right:"8%",width:"1px",background:"linear-gradient(to bottom,transparent,rgba(201,160,70,0.04),transparent)"}}/>
+      </div>
+      {/* Partículas */}
+      {[...Array(16)].map((_,i)=>(
+        <div key={i} style={{position:"absolute",width:i%5===0?"2px":"1px",height:i%5===0?"2px":"1px",borderRadius:"50%",background:`rgba(201,160,70,${0.15+i*0.035})`,top:(6+i*5.8)+"%",left:(3+i*6.1)+"%",animation:`brilho ${2+i*0.22}s ease-in-out infinite`,animationDelay:i*0.15+"s"}}/>
       ))}
 
-      <div style={{textAlign:"center",maxWidth:"380px",width:"100%",padding:"40px 28px",animation:"aparecer 1s ease",position:"relative",zIndex:2}}>
+      <div style={{textAlign:"center",maxWidth:"400px",width:"100%",padding:"44px 32px",animation:"aparecer 1.1s cubic-bezier(0.4,0,0.2,1)",position:"relative",zIndex:2,background:"rgba(255,255,255,0.025)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",borderRadius:"2px",border:"1px solid rgba(201,160,70,0.1)",boxShadow:"0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)"}}>
+        {/* Cantos decorativos */}
+        <div style={{position:"absolute",top:"14px",left:"14px",width:"18px",height:"18px",borderTop:"1px solid rgba(201,160,70,0.4)",borderLeft:"1px solid rgba(201,160,70,0.4)"}}/>
+        <div style={{position:"absolute",top:"14px",right:"14px",width:"18px",height:"18px",borderTop:"1px solid rgba(201,160,70,0.4)",borderRight:"1px solid rgba(201,160,70,0.4)"}}/>
+        <div style={{position:"absolute",bottom:"14px",left:"14px",width:"18px",height:"18px",borderBottom:"1px solid rgba(201,160,70,0.4)",borderLeft:"1px solid rgba(201,160,70,0.4)"}}/>
+        <div style={{position:"absolute",bottom:"14px",right:"14px",width:"18px",height:"18px",borderBottom:"1px solid rgba(201,160,70,0.4)",borderRight:"1px solid rgba(201,160,70,0.4)"}}/>
         {/* Linha decorativa topo */}
         <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"28px",justifyContent:"center"}}>
           <div style={{flex:1,height:"1px",background:`linear-gradient(to right,transparent,rgba(201,160,70,0.4))`}}/>
@@ -150,7 +166,7 @@ function Envelope({ nome, relacao, nomeEvento, dataEvento, horaEvento, localEven
                 <textPath href="#c3">ABRIR CONVITE ◆ ABRIR CONVITE ◆ ABRIR</textPath>
               </text>
             </svg>
-            <div className="env-inner" style={{position:"absolute",inset:"13px",borderRadius:"50%",background:`linear-gradient(135deg,rgba(201,160,70,0.12),rgba(201,160,70,0.06))`,border:`1px solid rgba(201,160,70,0.3)`,display:"flex",alignItems:"center",justifyContent:"center",transition:"transform 0.3s",boxShadow:`0 0 30px rgba(201,160,70,0.1)`}}>
+            <div className="env-inner" style={{position:"absolute",inset:"13px",borderRadius:"50%",background:`linear-gradient(135deg,rgba(201,160,70,0.1),rgba(201,160,70,0.04))`,border:`1px solid rgba(201,160,70,0.35)`,display:"flex",alignItems:"center",justifyContent:"center",transition:"transform 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s",boxShadow:`0 0 24px rgba(201,160,70,0.08)`,animation:abrindo?"none":"pulse-gold 3s ease-in-out infinite"}}>
               {abrindo
                 ? <div style={{width:"18px",height:"18px",border:`1.5px solid rgba(201,160,70,0.3)`,borderTopColor:GOLD,borderRadius:"50%",animation:"rodar 0.8s linear infinite"}}/>
                 : <svg width="28" height="22" viewBox="0 0 32 26" fill="none">
@@ -237,13 +253,15 @@ function SlideCountdown({ evento }) {
         )}
       </div>
       {/* Countdown */}
-      <div style={{flex:1,background:CREAM2,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"16px 12px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"14px"}}>
-          <div style={{width:"20px",height:"1px",background:`rgba(201,160,70,0.4)`}}/>
-          <p style={{fontFamily:"'Cormorant Garamond',serif",color:"#666",fontSize:"clamp(12px,2.5vw,16px)",fontStyle:"italic",margin:0,letterSpacing:"1px"}}>Contagem decrescente</p>
-          <div style={{width:"20px",height:"1px",background:`rgba(201,160,70,0.4)`}}/>
+      <div style={{flex:1,background:"#fefcf8",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"16px 12px",position:"relative"}}>
+        {/* Linha decorativa topo */}
+        <div style={{position:"absolute",top:0,left:"20%",right:"20%",height:"1px",background:"linear-gradient(to right,transparent,rgba(201,160,70,0.2),transparent)"}}/>
+        <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px"}}>
+          <div style={{width:"24px",height:"1px",background:`rgba(201,160,70,0.35)`}}/>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",color:"#666",fontSize:"clamp(13px,2.5vw,17px)",fontStyle:"italic",margin:0,letterSpacing:"1.5px"}}>Contagem decrescente</p>
+          <div style={{width:"24px",height:"1px",background:`rgba(201,160,70,0.35)`}}/>
         </div>
-        <div style={{display:"flex",gap:"10px",justifyContent:"center"}}>
+        <div style={{display:"flex",gap:"12px",justifyContent:"center"}}>
           <Circ v={t.dias}  l="DIAS"/>
           <Circ v={t.horas} l="HORAS"/>
           <Circ v={t.mins}  l="MIN"/>
@@ -294,18 +312,18 @@ function SlideVideos({ videos, renderVideo }) {
 }
 
 // ─── Helpers de estilo para slides com scroll vertical ─────────────────────────
-const scrollSlide = { width:"100%",height:"100%",background:CREAM,fontFamily:"'Inter',sans-serif",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",padding:"22px 18px 28px" };
-const tituloSlide = { fontFamily:"'Cormorant Garamond',serif",color:DARK,fontSize:"clamp(18px,4vw,26px)",fontWeight:600,textAlign:"center",letterSpacing:"3px",textTransform:"uppercase",margin:"0 0 6px" };
-const subtituloOuro = { color:GOLD,fontSize:"9px",fontWeight:600,textAlign:"center",letterSpacing:"4px",textTransform:"uppercase",display:"block",marginBottom:"8px" };
+const scrollSlide = { width:"100%",height:"100%",background:"#fefcf8",fontFamily:"'Inter',sans-serif",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",padding:"24px 20px 32px" };
+const tituloSlide = { fontFamily:"'Cormorant Garamond',serif",color:"#0d0d0d",fontSize:"clamp(20px,4.5vw,28px)",fontWeight:600,textAlign:"center",letterSpacing:"4px",textTransform:"uppercase",margin:"0 0 6px",lineHeight:1.1 };
+const subtituloOuro = { color:GOLD,fontSize:"8px",fontWeight:700,textAlign:"center",letterSpacing:"5px",textTransform:"uppercase",display:"block",marginBottom:"10px",opacity:0.85 };
 const divisorSlide = (
-  <div style={{display:"flex",alignItems:"center",gap:"10px",margin:"0 auto 20px",maxWidth:"120px"}}>
-    <div style={{flex:1,height:"1px",background:`rgba(201,160,70,0.3)`}}/>
-    <div style={{width:"4px",height:"4px",borderRadius:"50%",background:GOLD,opacity:0.6}}/>
-    <div style={{flex:1,height:"1px",background:`rgba(201,160,70,0.3)`}}/>
+  <div style={{display:"flex",alignItems:"center",gap:"12px",margin:"0 auto 22px",maxWidth:"140px"}}>
+    <div style={{flex:1,height:"1px",background:`linear-gradient(to right,transparent,rgba(201,160,70,0.4))`}}/>
+    <svg width="6" height="6" viewBox="0 0 6 6" fill={GOLD}><polygon points="3,0 6,3 3,6 0,3"/></svg>
+    <div style={{flex:1,height:"1px",background:`linear-gradient(to left,transparent,rgba(201,160,70,0.4))`}}/>
   </div>
 );
-const inpS = { width:"100%",padding:"9px 12px",borderRadius:"6px",border:"1px solid rgba(0,0,0,0.12)",background:"white",color:"#333",fontSize:"13px",outline:"none",boxSizing:"border-box" };
-const lblS = { color:"#aaa",fontSize:"9px",fontWeight:600,display:"block",marginBottom:"5px",letterSpacing:"1.5px",textTransform:"uppercase" };
+const inpS = { width:"100%",padding:"10px 13px",borderRadius:"4px",border:"1px solid rgba(0,0,0,0.1)",background:"white",color:"#1a1a1a",fontSize:"13px",outline:"none",boxSizing:"border-box",letterSpacing:"0.2px",transition:"border-color 0.2s" };
+const lblS = { color:"#bbb",fontSize:"8px",fontWeight:700,display:"block",marginBottom:"5px",letterSpacing:"2px",textTransform:"uppercase" };
 
 // ─── ConviteSlides ─────────────────────────────────────────────────────────────
 function ConviteSlides({ evento, nomeConv, relConv }) {
@@ -318,6 +336,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   const startX = useRef(null);
   const startY = useRef(null);
   const isScrolling = useRef(false);
+  const wheelLock = useRef(false);
 
   const programa = (()=>{ try{ return Array.isArray(evento.programa)?evento.programa:JSON.parse(evento.programa||"[]"); }catch{ return []; } })().filter(p=>p.nome);
   const refData = (()=>{ try{ return typeof evento.refeicao==="object"?evento.refeicao:JSON.parse(evento.refeicao||"{}"); }catch{ return {}; } })();
@@ -345,12 +364,33 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   }, [total]);
 
   useEffect(() => {
-    const h = (e) => { if(e.key==="ArrowRight") goTo(slide+1); if(e.key==="ArrowLeft") goTo(slide-1); };
+    const h = (e) => { if(e.key==="ArrowRight"||e.key==="ArrowDown") goTo(slide+1); if(e.key==="ArrowLeft"||e.key==="ArrowUp") goTo(slide-1); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [slide, goTo]);
 
-  // Touch híbrido: distingue scroll vertical de swipe horizontal
+  // Wheel/scroll do rato — navega entre slides
+  useEffect(() => {
+    const onWheel = (e) => {
+      // Se o elemento scrollável tem conteúdo por scrollar, deixa o scroll nativo acontecer
+      const el = e.target.closest(".slide-scroll");
+      if (el) {
+        const atTop = el.scrollTop === 0;
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+        if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) return;
+      }
+      if (wheelLock.current) return;
+      wheelLock.current = true;
+      setTimeout(() => { wheelLock.current = false; }, 600);
+      if (e.deltaY > 0 || e.deltaX > 0) goTo(slide + 1);
+      else goTo(slide - 1);
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [slide, goTo]);
+
+  // Touch híbrido: swipe vertical E horizontal navegam entre slides
+  // Exceto quando o slide tem scroll interno e ainda há conteúdo por scrollar
   const onTS = (e) => {
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
@@ -360,12 +400,33 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
     if (startX.current === null || startY.current === null) return;
     const dx = Math.abs(e.touches[0].clientX - startX.current);
     const dy = Math.abs(e.touches[0].clientY - startY.current);
-    if (dy > dx) { isScrolling.current = true; }
+    // Só marca como scroll interno se o movimento for claramente vertical
+    // E o elemento sob o toque for um slide scrollável com espaço para scrollar
+    if (dy > dx && dy > 8) {
+      const el = e.target.closest(".slide-scroll");
+      if (el) {
+        const atTop = el.scrollTop === 0;
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+        const goingDown = e.touches[0].clientY < startY.current;
+        const goingUp = e.touches[0].clientY > startY.current;
+        if ((!atTop && goingUp) || (!atBottom && goingDown)) {
+          isScrolling.current = true;
+        }
+      }
+    }
   };
   const onTE = (e) => {
-    if (startX.current === null || isScrolling.current) { startX.current = null; startY.current = null; return; }
+    if (startX.current === null) { startX.current = null; startY.current = null; return; }
+    if (isScrolling.current) { startX.current = null; startY.current = null; return; }
     const dx = startX.current - e.changedTouches[0].clientX;
-    if (Math.abs(dx) > 45) goTo(slide + (dx > 0 ? 1 : -1));
+    const dy = startY.current - e.changedTouches[0].clientY;
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+    // Aceita swipe em qualquer direção dominante (H ou V) com pelo menos 40px
+    if (adx > 40 || ady > 40) {
+      if (adx >= ady) goTo(slide + (dx > 0 ? 1 : -1));
+      else goTo(slide + (dy > 0 ? 1 : -1));
+    }
     startX.current = null; startY.current = null;
   };
 
@@ -450,9 +511,9 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
       return (
         <div key={i} style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden",background:DARK}}>
           {/* Header */}
-          <div style={{background:CREAM2,padding:"14px 18px 12px",flexShrink:0}}>
+          <div style={{background:"#fefcf8",padding:"14px 18px 12px",flexShrink:0,borderBottom:"1px solid rgba(201,160,70,0.1)"}}>
             <span style={subtituloOuro}>Local do evento</span>
-            <h2 style={{...tituloSlide,fontSize:"clamp(13px,2.8vw,17px)",marginBottom:"8px"}}>Onde nos encontramos</h2>
+            <h2 style={{...tituloSlide,fontSize:"clamp(13px,2.8vw,18px)",marginBottom:"10px"}}>Onde nos encontramos</h2>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div>
                 <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:"clamp(18px,4vw,26px)",fontWeight:600,color:DARK}}>{evento.hora_evento||"00:00"}</div>
@@ -573,11 +634,11 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
               <label style={lblS}>Confirmação *</label>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"7px"}}>
                 <button type="button" onClick={()=>setForm({...form,confirmado:true})}
-                  style={{padding:"9px",borderRadius:"6px",border:`1.5px solid ${form.confirmado?GOLD:"rgba(0,0,0,0.1)"}`,background:form.confirmado?GOLD_LIGHT:"white",color:form.confirmado?DARK:"#bbb",fontWeight:700,fontSize:"11px",cursor:"pointer",letterSpacing:"1px",transition:"all 0.2s"}}>
+                  style={{padding:"10px",borderRadius:"2px",border:`1.5px solid ${form.confirmado?GOLD:"rgba(0,0,0,0.08)"}`,background:form.confirmado?GOLD_LIGHT:"white",color:form.confirmado?"#6a4800":"#ccc",fontWeight:700,fontSize:"10px",cursor:"pointer",letterSpacing:"2px",transition:"all 0.25s",fontFamily:"'Inter',sans-serif",textTransform:"uppercase"}}>
                   Sim, vou estar
                 </button>
                 <button type="button" onClick={()=>setForm({...form,confirmado:false})}
-                  style={{padding:"9px",borderRadius:"6px",border:`1.5px solid ${!form.confirmado?GOLD:"rgba(0,0,0,0.1)"}`,background:!form.confirmado?GOLD_LIGHT:"white",color:!form.confirmado?DARK:"#bbb",fontWeight:700,fontSize:"11px",cursor:"pointer",letterSpacing:"1px",transition:"all 0.2s"}}>
+                  style={{padding:"10px",borderRadius:"2px",border:`1.5px solid ${!form.confirmado?GOLD:"rgba(0,0,0,0.08)"}`,background:!form.confirmado?GOLD_LIGHT:"white",color:!form.confirmado?"#6a4800":"#ccc",fontWeight:700,fontSize:"10px",cursor:"pointer",letterSpacing:"2px",transition:"all 0.25s",fontFamily:"'Inter',sans-serif",textTransform:"uppercase"}}>
                   Não posso ir
                 </button>
               </div>
@@ -588,7 +649,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
             </div>
             {erro && <div style={{background:"rgba(201,160,70,0.08)",border:`1px solid rgba(201,160,70,0.3)`,borderRadius:"6px",padding:"8px 10px",color:"#8a6a00",marginBottom:"10px",fontSize:"11px"}}>{erro}</div>}
             <button type="submit" disabled={submitting}
-              style={{width:"100%",padding:"12px",borderRadius:"6px",border:"none",background:DARK,color:"white",fontSize:"11px",fontWeight:700,cursor:submitting?"wait":"pointer",opacity:submitting?0.6:1,letterSpacing:"2px",textTransform:"uppercase",transition:"opacity 0.2s"}}>
+              style={{width:"100%",padding:"13px",borderRadius:"2px",border:`1px solid ${DARK}`,background:DARK,color:"white",fontSize:"10px",fontWeight:700,cursor:submitting?"wait":"pointer",opacity:submitting?0.5:1,letterSpacing:"3px",textTransform:"uppercase",transition:"all 0.3s",fontFamily:"'Inter',sans-serif"}}>
               {submitting ? "A enviar..." : form.confirmado ? "Confirmar Presença" : "Enviar Resposta"}
             </button>
           </form>
@@ -617,7 +678,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
 
   return (
     <div
-      style={{width:"100vw",height:"100vh",overflow:"hidden",position:"relative",background:`linear-gradient(135deg,#1a1a1a 0%,#111111 100%)`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif"}}
+      style={{width:"100vw",height:"100vh",overflow:"hidden",position:"relative",background:`linear-gradient(160deg,#0a0a0a 0%,#0f0f0f 50%,#080808 100%)`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif"}}
       onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
       <style>{CSS+`
         @media(max-width:600px){
@@ -642,7 +703,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
       </button>
 
       {/* Frame do dispositivo */}
-      <div className="cv-frame" style={{width:"min(390px,86vw)",height:"min(640px,86vh)",borderRadius:"38px",background:DARK,boxShadow:`0 0 0 2px #1e1e1e,0 0 0 6px ${DARK},0 40px 100px rgba(0,0,0,0.7),0 0 60px rgba(201,160,70,0.04)`,position:"relative",overflow:"hidden",flexShrink:0}}>
+      <div className="cv-frame" style={{width:"min(390px,86vw)",height:"min(640px,86vh)",borderRadius:"44px",background:DARK,boxShadow:`0 0 0 1px rgba(201,160,70,0.15),0 0 0 3px #111,0 0 0 4px rgba(201,160,70,0.08),0 60px 120px rgba(0,0,0,0.8),0 0 80px rgba(201,160,70,0.04)`,position:"relative",overflow:"hidden",flexShrink:0}}>
         {/* Notch */}
         <div style={{position:"absolute",top:0,left:0,right:0,height:"22px",background:DARK,zIndex:10,display:"flex",alignItems:"center",justifyContent:"center"}}>
           <div style={{width:"60px",height:"5px",borderRadius:"3px",background:"#1e1e1e"}}/>
@@ -657,7 +718,14 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
             ))}
           </div>
         </div>
-        {/* Indicador de scroll vertical */}
+        {/* Indicador de scroll vertical — setas cima/baixo dentro do frame */}
+        <div style={{position:"absolute",top:"26px",left:"50%",transform:"translateX(-50%)",zIndex:20,opacity:slide===0?0:0.4,transition:"opacity 0.3s",pointerEvents:"none"}}>
+          <svg width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 7L7 1L13 7" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </div>
+        <div style={{position:"absolute",bottom:"26px",left:"50%",transform:"translateX(-50%)",zIndex:20,opacity:slide===total-1?0:0.4,transition:"opacity 0.3s",pointerEvents:"none"}}>
+          <svg width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 1L7 7L13 1" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </div>
+        {/* Indicador lateral para slides com scroll interno */}
         {slideAtualTemScroll && (
           <div style={{position:"absolute",right:"6px",top:"50%",transform:"translateY(-50%)",zIndex:20,display:"flex",flexDirection:"column",gap:"3px",alignItems:"center",opacity:0.5,pointerEvents:"none"}}>
             <div style={{width:"1px",height:"20px",background:`linear-gradient(to bottom,transparent,${GOLD})`}}/>
