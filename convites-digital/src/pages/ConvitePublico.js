@@ -28,7 +28,6 @@ const GOLD = "#c9a046";
 const GOLD_LIGHT = "rgba(201,160,70,0.15)";
 const DARK = "#0d0d0d";
 const CREAM = "#faf7f2";
-const CREAM2 = "#f4efe8";
 
 // ─── Musica Player ─────────────────────────────────────────────────────────────
 function MusicaPlayer({ url, autoPlay }) {
