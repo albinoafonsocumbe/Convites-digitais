@@ -166,7 +166,6 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   const [erro, setErro] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ nome_convidado:nomeConv||"", email:"", telefone:"", confirmado:true, mensagem:"" });
-  const [fotoIdx, setFotoIdx] = useState(0);
   const [viIdx, setViIdx] = useState(0);
   const scrollRef = useRef();
   const lockRef = useRef(false);
