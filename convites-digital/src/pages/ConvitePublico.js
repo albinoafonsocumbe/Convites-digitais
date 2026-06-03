@@ -311,7 +311,7 @@ function SlideVideos({ videos, renderVideo }) {
 }
 
 // ─── Helpers de estilo para slides com scroll vertical ─────────────────────────
-const scrollSlide = { width:"100%",height:"100%",background:"#fefcf8",fontFamily:"'Inter',sans-serif",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",padding:"24px 20px 32px" };
+const scrollSlide = { width:"100%",minHeight:"100vh",background:"#fefcf8",fontFamily:"'Inter',sans-serif",overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch",padding:"40px 24px 60px",boxSizing:"border-box" };
 const tituloSlide = { fontFamily:"'Cormorant Garamond',serif",color:"#0d0d0d",fontSize:"clamp(20px,4.5vw,28px)",fontWeight:600,textAlign:"center",letterSpacing:"4px",textTransform:"uppercase",margin:"0 0 6px",lineHeight:1.1 };
 const subtituloOuro = { color:GOLD,fontSize:"8px",fontWeight:700,textAlign:"center",letterSpacing:"5px",textTransform:"uppercase",display:"block",marginBottom:"10px",opacity:0.85 };
 const divisorSlide = (
@@ -324,18 +324,15 @@ const divisorSlide = (
 const inpS = { width:"100%",padding:"10px 13px",borderRadius:"4px",border:"1px solid rgba(0,0,0,0.1)",background:"white",color:"#1a1a1a",fontSize:"13px",outline:"none",boxSizing:"border-box",letterSpacing:"0.2px",transition:"border-color 0.2s" };
 const lblS = { color:"#bbb",fontSize:"8px",fontWeight:700,display:"block",marginBottom:"5px",letterSpacing:"2px",textTransform:"uppercase" };
 
-// ─── ConviteSlides ─────────────────────────────────────────────────────────────
+// ─── ConviteSlides (scroll vertical full-page, estilo Limintso) ────────────────
 function ConviteSlides({ evento, nomeConv, relConv }) {
   const [slide, setSlide] = useState(0);
   const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ nome_convidado:nomeConv||"", email:"", telefone:"", confirmado:true, mensagem:"" });
-  const trackRef = useRef();
-  const startX = useRef(null);
-  const startY = useRef(null);
-  const isScrolling = useRef(false);
-  const wheelLock = useRef(false);
+  const containerRef = useRef();
+  const scrollLock = useRef(false);
 
   const programa = (()=>{ try{ return Array.isArray(evento.programa)?evento.programa:JSON.parse(evento.programa||"[]"); }catch{ return []; } })().filter(p=>p.nome);
   const refData = (()=>{ try{ return typeof evento.refeicao==="object"?evento.refeicao:JSON.parse(evento.refeicao||"{}"); }catch{ return {}; } })();
@@ -359,75 +356,59 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   const goTo = useCallback((n) => {
     const next = Math.max(0, Math.min(total-1, n));
     setSlide(next);
-    if (trackRef.current) trackRef.current.style.transform = `translateX(-${next*(100/total)}%)`;
+    if (containerRef.current) {
+      const el = containerRef.current.children[next];
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [total]);
 
+  // Teclado
   useEffect(() => {
-    const h = (e) => { if(e.key==="ArrowRight"||e.key==="ArrowDown") goTo(slide+1); if(e.key==="ArrowLeft"||e.key==="ArrowUp") goTo(slide-1); };
+    const h = (e) => {
+      if (e.key==="ArrowDown"||e.key==="ArrowRight") goTo(slide+1);
+      if (e.key==="ArrowUp"||e.key==="ArrowLeft") goTo(slide-1);
+    };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [slide, goTo]);
 
-  // Wheel/scroll do rato — navega entre slides
+  // Scroll do rato — navega entre secções com lock para evitar saltos
   useEffect(() => {
     const onWheel = (e) => {
-      // Se o elemento scrollável tem conteúdo por scrollar, deixa o scroll nativo acontecer
-      const el = e.target.closest(".slide-scroll");
-      if (el) {
-        const atTop = el.scrollTop === 0;
-        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
-        if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) return;
-      }
-      if (wheelLock.current) return;
-      wheelLock.current = true;
-      setTimeout(() => { wheelLock.current = false; }, 600);
-      if (e.deltaY > 0 || e.deltaX > 0) goTo(slide + 1);
-      else goTo(slide - 1);
+      if (scrollLock.current) return;
+      scrollLock.current = true;
+      setTimeout(() => { scrollLock.current = false; }, 700);
+      if (e.deltaY > 0) goTo(slide+1);
+      else goTo(slide-1);
     };
     window.addEventListener("wheel", onWheel, { passive: true });
     return () => window.removeEventListener("wheel", onWheel);
   }, [slide, goTo]);
 
-  // Touch híbrido: swipe vertical E horizontal navegam entre slides
-  // Exceto quando o slide tem scroll interno e ainda há conteúdo por scrollar
-  const onTS = (e) => {
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
-    isScrolling.current = false;
-  };
-  const onTM = (e) => {
-    if (startX.current === null || startY.current === null) return;
-    const dx = Math.abs(e.touches[0].clientX - startX.current);
-    const dy = Math.abs(e.touches[0].clientY - startY.current);
-    // Só marca como scroll interno se o movimento for claramente vertical
-    // E o elemento sob o toque for um slide scrollável com espaço para scrollar
-    if (dy > dx && dy > 8) {
-      const el = e.target.closest(".slide-scroll");
-      if (el) {
-        const atTop = el.scrollTop === 0;
-        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
-        const goingDown = e.touches[0].clientY < startY.current;
-        const goingUp = e.touches[0].clientY > startY.current;
-        if ((!atTop && goingUp) || (!atBottom && goingDown)) {
-          isScrolling.current = true;
-        }
-      }
-    }
-  };
+  // Touch — swipe vertical navega entre secções
+  const startY = useRef(null);
+  const onTS = (e) => { startY.current = e.touches[0].clientY; };
   const onTE = (e) => {
-    if (startX.current === null) { startX.current = null; startY.current = null; return; }
-    if (isScrolling.current) { startX.current = null; startY.current = null; return; }
-    const dx = startX.current - e.changedTouches[0].clientX;
+    if (startY.current === null) return;
     const dy = startY.current - e.changedTouches[0].clientY;
-    const adx = Math.abs(dx);
-    const ady = Math.abs(dy);
-    // Aceita swipe em qualquer direção dominante (H ou V) com pelo menos 40px
-    if (adx > 40 || ady > 40) {
-      if (adx >= ady) goTo(slide + (dx > 0 ? 1 : -1));
-      else goTo(slide + (dy > 0 ? 1 : -1));
-    }
-    startX.current = null; startY.current = null;
+    if (Math.abs(dy) > 50) goTo(slide + (dy > 0 ? 1 : -1));
+    startY.current = null;
   };
+
+  // Detetar secção visível via IntersectionObserver
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const i = Array.from(containerRef.current.children).indexOf(entry.target);
+          if (i >= 0) setSlide(i);
+        }
+      });
+    }, { threshold: 0.6 });
+    Array.from(containerRef.current.children).forEach(child => obs.observe(child));
+    return () => obs.disconnect();
+  }, [total]);
 
   const renderVideo = (url, key) => {
     if (!url||!url.trim()) return null;
@@ -508,7 +489,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
         ? "https://www.google.com/maps/embed/v1/place?key="+apiKey+"&q="+encodeURIComponent(evento.endereco_maps||evento.local_evento)+"&zoom=15&language=pt"
         : "https://maps.google.com/maps?q="+encodeURIComponent(evento.endereco_maps||evento.local_evento)+"&output=embed";
       return (
-        <div key={i} style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden",background:DARK}}>
+        <div key={i} style={{width:"100%",height:"100vh",display:"flex",flexDirection:"column",overflow:"hidden",background:DARK}}>
           {/* Header */}
           <div style={{background:"#fefcf8",padding:"14px 18px 12px",flexShrink:0,borderBottom:"1px solid rgba(201,160,70,0.1)"}}>
             <span style={subtituloOuro}>Local do evento</span>
@@ -671,89 +652,43 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
     return null;
   };
 
-  // Indicadores de scroll vertical nos slides com overflow
-  const slidesComScroll = ["programa","refeicao","rsvp"];
-  const slideAtualTemScroll = slidesComScroll.includes(slides[slide]);
-
+  // Cada secção ocupa 100vh, scroll vertical com snap
   return (
-    <div
-      style={{width:"100vw",height:"100vh",overflow:"hidden",position:"relative",background:`linear-gradient(160deg,#0a0a0a 0%,#0f0f0f 50%,#080808 100%)`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Inter',sans-serif"}}
-      onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
+    <div style={{position:"relative",fontFamily:"'Inter',sans-serif"}} onTouchStart={onTS} onTouchEnd={onTE}>
       <style>{CSS+`
-        @media(max-width:600px){
-          .cv-nav-btn{display:none!important;}
-          .cv-frame{width:100vw!important;height:100vh!important;border-radius:0!important;box-shadow:none!important;}
-          .cv-nav-mobile{display:flex!important;}
-          .cv-dots{bottom:44px!important;}
-        }
-        .cv-nav-mobile{display:none;position:absolute;top:50%;transform:translateY(-50%);z-index:50;width:100%;justify-content:space-between;padding:0 10px;pointer-events:none;box-sizing:border-box;}
-        .cv-nav-mobile button{pointer-events:all;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.6);border:1px solid rgba(201,160,70,0.25);font-size:20px;color:${GOLD};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.4);cursor:pointer;}
-        .cv-nav-mobile button:disabled{opacity:0.15;cursor:not-allowed;}
-        .cv-nav-btn{transition:opacity 0.3s,background 0.3s;}
-        .cv-nav-btn:hover:not(:disabled){background:rgba(201,160,70,0.15)!important;}
+        body{overflow:hidden;}
+        .cv-sections{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-ms-overflow-style:none;}
+        .cv-sections::-webkit-scrollbar{display:none;}
+        .cv-section{height:100vh;scroll-snap-align:start;flex-shrink:0;overflow:hidden;position:relative;}
+        .cv-section-scroll{height:100vh;scroll-snap-align:start;flex-shrink:0;overflow-y:auto;position:relative;}
+        .cv-section-scroll::-webkit-scrollbar{width:2px;}
+        .cv-section-scroll::-webkit-scrollbar-thumb{background:rgba(201,160,70,0.25);}
+        .cv-dots-v{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;}
+        .cv-dot{width:6px;height:6px;border-radius:3px;border:none;cursor:pointer;transition:all 0.3s;padding:0;}
+        @media(max-width:600px){.cv-dots-v{right:10px;}.cv-dot{width:5px;height:5px;}}
       `}</style>
 
       {evento.musica_url && <MusicaPlayer url={evento.musica_url} autoPlay={true}/>}
 
-      {/* Seta esquerda (desktop) */}
-      <button className="cv-nav-btn" onClick={()=>goTo(slide-1)} disabled={slide===0} aria-label="Anterior"
-        style={{width:"42px",height:"42px",borderRadius:"50%",background:"rgba(0,0,0,0.5)",border:`1px solid rgba(201,160,70,0.2)`,cursor:slide===0?"not-allowed":"pointer",opacity:slide===0?0.15:0.85,fontSize:"22px",color:GOLD,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginRight:"clamp(8px,1.5vw,18px)"}}>
-        ‹
-      </button>
-
-      {/* Frame do dispositivo */}
-      <div className="cv-frame" style={{width:"min(390px,86vw)",height:"min(640px,86vh)",borderRadius:"44px",background:DARK,boxShadow:`0 0 0 1px rgba(201,160,70,0.15),0 0 0 3px #111,0 0 0 4px rgba(201,160,70,0.08),0 60px 120px rgba(0,0,0,0.8),0 0 80px rgba(201,160,70,0.04)`,position:"relative",overflow:"hidden",flexShrink:0}}>
-        {/* Notch */}
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"22px",background:DARK,zIndex:10,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <div style={{width:"60px",height:"5px",borderRadius:"3px",background:"#1e1e1e"}}/>
-        </div>
-        {/* Slides */}
-        <div style={{position:"absolute",top:"22px",left:0,right:0,bottom:"22px",overflow:"hidden"}}>
-          <div ref={trackRef} style={{display:"flex",width:total+"00%",height:"100%",transition:"transform 0.5s cubic-bezier(0.4,0,0.2,1)"}}>
-            {slides.map((tipo,i) => (
-              <div key={i} style={{width:(100/total)+"%",height:"100%",flexShrink:0,overflow:"hidden"}}>
-                {renderSlide(tipo,i)}
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Indicador de scroll vertical — setas cima/baixo dentro do frame */}
-        <div style={{position:"absolute",top:"26px",left:"50%",transform:"translateX(-50%)",zIndex:20,opacity:slide===0?0:0.4,transition:"opacity 0.3s",pointerEvents:"none"}}>
-          <svg width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 7L7 1L13 7" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </div>
-        <div style={{position:"absolute",bottom:"26px",left:"50%",transform:"translateX(-50%)",zIndex:20,opacity:slide===total-1?0:0.4,transition:"opacity 0.3s",pointerEvents:"none"}}>
-          <svg width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 1L7 7L13 1" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </div>
-        {/* Indicador lateral para slides com scroll interno */}
-        {slideAtualTemScroll && (
-          <div style={{position:"absolute",right:"6px",top:"50%",transform:"translateY(-50%)",zIndex:20,display:"flex",flexDirection:"column",gap:"3px",alignItems:"center",opacity:0.5,pointerEvents:"none"}}>
-            <div style={{width:"1px",height:"20px",background:`linear-gradient(to bottom,transparent,${GOLD})`}}/>
-            <svg width="8" height="8" viewBox="0 0 8 8" fill={GOLD}><polygon points="4,0 8,8 0,8"/></svg>
-          </div>
-        )}
-        {/* Botões mobile dentro do frame */}
-        <div className="cv-nav-mobile">
-          <button onClick={()=>goTo(slide-1)} disabled={slide===0} aria-label="Anterior">‹</button>
-          <button onClick={()=>goTo(slide+1)} disabled={slide===total-1} aria-label="Próximo">›</button>
-        </div>
-        {/* Barra inferior */}
-        <div style={{position:"absolute",bottom:0,left:0,right:0,height:"22px",background:DARK,zIndex:10,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <div style={{width:"38px",height:"4px",borderRadius:"2px",background:"#1e1e1e"}}/>
-        </div>
+      {/* Dots de navegação vertical — lado direito */}
+      <div className="cv-dots-v">
+        {slides.map((_,i) => (
+          <button key={i} className="cv-dot" onClick={()=>goTo(i)}
+            style={{background:i===slide?GOLD:"rgba(201,160,70,0.25)",height:i===slide?"18px":"6px"}}
+            aria-label={`Secção ${i+1}`}/>
+        ))}
       </div>
 
-      {/* Seta direita (desktop) */}
-      <button className="cv-nav-btn" onClick={()=>goTo(slide+1)} disabled={slide===total-1} aria-label="Próximo"
-        style={{width:"42px",height:"42px",borderRadius:"50%",background:"rgba(0,0,0,0.5)",border:`1px solid rgba(201,160,70,0.2)`,cursor:slide===total-1?"not-allowed":"pointer",opacity:slide===total-1?0.15:0.85,fontSize:"22px",color:GOLD,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginLeft:"clamp(8px,1.5vw,18px)"}}>
-        ›
-      </button>
-
-      {/* Dots de navegação */}
-      <div className="cv-dots" style={{position:"absolute",bottom:"clamp(10px,2vh,18px)",left:"50%",transform:"translateX(-50%)",display:"flex",gap:"6px",zIndex:100}}>
-        {slides.map((_,i) => (
-          <button key={i} onClick={()=>goTo(i)}
-            style={{width:i===slide?"18px":"5px",height:"5px",borderRadius:"3px",background:i===slide?GOLD:`rgba(201,160,70,0.2)`,border:"none",cursor:"pointer",transition:"all 0.3s",padding:0}}/>
-        ))}
+      {/* Secções verticais */}
+      <div ref={containerRef} className="cv-sections">
+        {slides.map((tipo, i) => {
+          const isScroll = ["programa","refeicao","rsvp"].includes(tipo);
+          return (
+            <div key={i} className={isScroll ? "cv-section-scroll" : "cv-section"}>
+              {renderSlide(tipo, i)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
