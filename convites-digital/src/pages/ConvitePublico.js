@@ -37,7 +37,6 @@ const GA = "rgba(185,148,66,"; /* ouro alpha */
 const W = "#ffffff";
 const D = "#0f0f0f";
 const C = "#faf8f4";          /* creme claro */
-const C2 = "#f3f0eb";         /* creme médio */
 
 /* ─────────────────────────────────────────────────────
    COMPONENTE: PLAYER DE MÚSICA
@@ -304,7 +303,6 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   const [fotoIdx, setFotoIdx]   = useState(0);
 
   const scrollRef  = useRef();
-  const lockRef    = useRef(false);
   const touchY     = useRef(null);
 
   /* ── Dados do evento ── */
