@@ -286,7 +286,7 @@ const Hr = () => (
 );
 const Arrow = () => (
   <div style={{ position:"absolute", bottom:"16px", left:"50%", transform:"translateX(-50%)", opacity:0.35 }}>
-    <svg width="16" height="9" viewBox="0 0 16 9" fill="none"><path d="M1.5 1.5L8 7.5L14.5 1.5" stroke={G} strokeWidth="1.5" strokeLinecap:"round" strokeLinejoin:"round"/></svg>
+    <svg width="16" height="9" viewBox="0 0 16 9" fill="none"><path d="M1.5 1.5L8 7.5L14.5 1.5" stroke={G} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
   </div>
 );
 
