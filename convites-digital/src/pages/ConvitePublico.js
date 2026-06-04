@@ -301,6 +301,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
   const [submitting, setSub]    = useState(false);
   const [form, setForm]         = useState({ nome_convidado:nomeConv||"", email:"", telefone:"", confirmado:true, mensagem:"" });
   const [viIdx, setViIdx]       = useState(0);
+  const [fotoIdx, setFotoIdx]   = useState(0);
 
   const scrollRef  = useRef();
   const lockRef    = useRef(false);
@@ -345,10 +346,11 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
 
   useEffect(() => {
     const el = scrollRef.current; if (!el) return;
+    let lastWheel = 0;
     const onW = (e) => {
-      if (lockRef.current) return;
-      lockRef.current = true;
-      setTimeout(() => { lockRef.current = false; }, 750);
+      const now = Date.now();
+      if (now - lastWheel < 900) return; // debounce — 1 scroll = 1 slide
+      lastWheel = now;
       goTo(slide + (e.deltaY > 0 ? 1 : -1));
     };
     el.addEventListener("wheel", onW, { passive:true });
@@ -447,11 +449,13 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
           <p style={{ color:`${GA}0.75)`, fontSize:"11px", letterSpacing:"3.5px", margin:"10px 0 4px", fontWeight:500 }}>{dateDot}</p>
           {evento.local_evento && <p style={{ color:"rgba(0,0,0,0.32)", fontSize:"10px", margin:0 }}>📍 {evento.local_evento}</p>}
 
-          {/* Mensagem */}
+          {/* Texto livre / citação */}
           {evento.mensagem && (
-            <p style={{ fontFamily:"'Cormorant Garamond',serif", color:"rgba(0,0,0,0.45)", fontSize:"clamp(12px,2.5vw,14px)", fontStyle:"italic", lineHeight:1.65, margin:"12px 0 0", maxWidth:"260px" }}>
-              "{evento.mensagem}"
-            </p>
+            <div style={{ marginTop:"14px", padding:"14px 16px", background:`${GA}0.06)`, borderLeft:`2px solid ${GA}0.4)`, borderRadius:"0 6px 6px 0", textAlign:"left", maxWidth:"280px" }}>
+              <p style={{ fontFamily:"'Cormorant Garamond',serif", color:"rgba(0,0,0,0.55)", fontSize:"clamp(13px,2.8vw,15px)", fontStyle:"italic", lineHeight:1.7, margin:0 }}>
+                "{evento.mensagem}"
+              </p>
+            </div>
           )}
         </div>
 
@@ -461,16 +465,36 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
 
     /* ── COUNTDOWN ── */
     if (tipo === "countdown") return (
-      <div key={i} className="fslide" style={{ background:"#fefcf8", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"28px 22px", textAlign:"center" }}>
-        <Lbl>Contagem Decrescente</Lbl>
-        <Title>O Grande Dia</Title>
-        <Hr/>
-        <Countdown evento={evento}/>
-        <div style={{ marginTop:"22px" }}>
-          <p style={{ color:"rgba(0,0,0,0.38)", fontSize:"11px", lineHeight:1.8, textTransform:"capitalize" }}>{dateLong}</p>
-          {evento.hora_evento && (
-            <p style={{ fontFamily:"'Cormorant Garamond',serif", color:G, fontSize:"clamp(22px,5vw,30px)", fontWeight:500, margin:"6px 0 0", letterSpacing:"1px" }}>{evento.hora_evento}H</p>
-          )}
+      <div key={i} className="fslide" style={{ background:"#fefcf8", display:"flex", flexDirection:"column" }}>
+        {/* Carrossel de fotos acima */}
+        {fotos.length > 0 && (
+          <div style={{ flex:"0 0 48%", position:"relative", overflow:"hidden", background:D }}>
+            <img src={fotos[fotoIdx]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", transition:"opacity 0.4s" }} key={fotos[fotoIdx]}/>
+            <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"60px", background:"linear-gradient(to top,#fefcf8,transparent)" }}/>
+            {/* Navegação fotos */}
+            {fotos.length > 1 && (
+              <>
+                <button onClick={() => setFotoIdx(i => Math.max(0,i-1))} disabled={fotoIdx===0}
+                  style={{ position:"absolute", left:"8px", top:"50%", transform:"translateY(-50%)", width:"26px", height:"26px", borderRadius:"50%", background:"rgba(0,0,0,0.45)", border:"none", color:"white", fontSize:"15px", cursor:"pointer", opacity:fotoIdx===0?0.25:0.85, display:"flex", alignItems:"center", justifyContent:"center", zIndex:5 }}>‹</button>
+                <button onClick={() => setFotoIdx(i => Math.min(fotos.length-1,i+1))} disabled={fotoIdx===fotos.length-1}
+                  style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", width:"26px", height:"26px", borderRadius:"50%", background:"rgba(0,0,0,0.45)", border:"none", color:"white", fontSize:"15px", cursor:"pointer", opacity:fotoIdx===fotos.length-1?0.25:0.85, display:"flex", alignItems:"center", justifyContent:"center", zIndex:5 }}>›</button>
+                <div style={{ position:"absolute", bottom:"8px", left:"50%", transform:"translateX(-50%)", display:"flex", gap:"4px", zIndex:5 }}>
+                  {fotos.map((_,fi) => <div key={fi} onClick={()=>setFotoIdx(fi)} style={{ width:fi===fotoIdx?"12px":"4px", height:"4px", borderRadius:"2px", background:fi===fotoIdx?"white":"rgba(255,255,255,0.45)", cursor:"pointer", transition:"all 0.3s" }}/>)}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        {/* Countdown */}
+        <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"20px 22px", textAlign:"center" }}>
+          <Lbl>Contagem Decrescente</Lbl>
+          <Title size="clamp(18px,4vw,26px)">O Grande Dia</Title>
+          <Hr/>
+          <Countdown evento={evento}/>
+          <div style={{ marginTop:"16px" }}>
+            <p style={{ color:"rgba(0,0,0,0.38)", fontSize:"10px", lineHeight:1.8, textTransform:"capitalize" }}>{dateLong}</p>
+            {evento.hora_evento && <p style={{ fontFamily:"'Cormorant Garamond',serif", color:G, fontSize:"clamp(20px,4.5vw,28px)", fontWeight:500, margin:"4px 0 0", letterSpacing:"1px" }}>{evento.hora_evento}H</p>}
+          </div>
         </div>
         <Arrow/>
       </div>
@@ -626,14 +650,7 @@ function ConviteSlides({ evento, nomeConv, relConv }) {
             </button>
           </form>
         )}
-        {/* Partilhar */}
-        <div style={{ marginTop:"22px", paddingTop:"18px", borderTop:`1px solid ${GA}0.15)`, textAlign:"center" }}>
-          <button onClick={() => { navigator.clipboard.writeText(window.location.href).then(() => alert("Link copiado!")).catch(() => {}); }}
-            style={{ display:"inline-flex", alignItems:"center", gap:"6px", background:W, color:D, border:`1px solid ${GA}0.3)`, borderRadius:"50px", padding:"9px 20px", fontSize:"8.5px", fontWeight:700, cursor:"pointer", letterSpacing:"2px", textTransform:"uppercase" }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={D} strokeWidth="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Partilhar este Convite
-          </button>
-        </div>
+        {/* Partilhar — REMOVIDO: o convidado não deve partilhar */}
       </div>
     );
     return null;
